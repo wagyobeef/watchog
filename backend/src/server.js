@@ -10,13 +10,21 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Watchog API' });
+});
+
+app.get('/test', (req, res) => {
+  res.json({ message: 'Test endpoint' });
 });
 
 app.use('/api', apiRoutes);
