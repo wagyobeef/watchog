@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 const App = () => {
   const handleClick = async () => {
     try {
-      const response = await fetch('http://localhost:3001/test');
+      const response = await fetch('http://localhost:3001/api/ebay/oauth');
       const data = await response.json();
       console.log(data);
     } catch (error) {

@@ -1,16 +1,17 @@
 import express from 'express';
+import { getEbayAccessToken } from '../utils/ebay.js';
 
 const router = express.Router();
 
-// Health check route
+let ebayAccessToken = null;
+
 router.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is healthy' });
 });
 
-// Sample POST route
-router.post('/data', (req, res) => {
-  const data = req.body;
-  res.json({ message: 'Data received', data });
+router.get('/ebay/oauth', (req, res) => {
+  const token = getEbayAccessToken();
+  res.json({ token });
 });
 
 export default router;
