@@ -14,28 +14,19 @@ const HomePage = () => {
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h2>eBay Watcher</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="p-5">
+      <h2 className="text-2xl font-semibold mb-4">eBay Watcher</h2>
+      <form onSubmit={handleSubmit} className="flex items-center">
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search for items..."
-          style={{
-            padding: '10px',
-            width: '300px',
-            fontSize: '14px',
-            marginRight: '10px'
-          }}
+          className="px-3 py-2 w-80 text-sm border border-gray-300 rounded mr-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
           type="submit"
-          style={{
-            padding: '10px 20px',
-            fontSize: '14px',
-            cursor: 'pointer'
-          }}
+          className="px-5 py-2 text-sm bg-blue-600 text-white rounded cursor-pointer hover:bg-blue-700 transition-colors"
         >
           Submit
         </button>

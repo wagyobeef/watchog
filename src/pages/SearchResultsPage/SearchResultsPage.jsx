@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import TopBar from '../../components/TopBar.jsx';
+import AuctionResultsSection from './AuctionResultsSection.jsx';
 import ResultsSection from './ResultsSection.jsx';
 
 const SearchResultsPage = () => {
@@ -34,60 +35,45 @@ const SearchResultsPage = () => {
   const allItems = results?.results?.itemSummaries || [];
 
   return (
-    <div style={{ fontFamily: 'Arial, sans-serif' }}>
+    <div>
       <TopBar
         leftComponent={
           <button
             onClick={() => navigate('/')}
-            style={{
-              padding: '8px 16px',
-              fontSize: '14px',
-              cursor: 'pointer',
-              backgroundColor: 'transparent',
-              border: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
+            className="px-4 py-2 text-sm cursor-pointer bg-transparent border-0 flex items-center gap-2 hover:bg-gray-200 rounded transition-colors"
           >
-            <span style={{ fontSize: '20px', lineHeight: '1', display: 'flex', alignItems: 'center' }}>‹</span>
+            <span className="text-xl leading-none flex items-center">‹</span>
             <span>Home</span>
           </button>
         }
         middleComponent={
-          <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>
+          <h3 className="m-0 text-base font-semibold">
             {query}
           </h3>
         }
       />
 
       {/* Content */}
-      <div style={{ padding: '20px' }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-          gap: '20px'
-        }}>
+      <div className="p-5">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-5">
           {/* Column 1 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <ResultsSection
-              title="Upcoming Auctions"
-              items={allItems.slice(0, 5)}
-              loading={loading}
-            />
+          <div className="flex flex-col gap-5">
+            <AuctionResultsSection query={query} />
             <ResultsSection
               title="Lowest Buy It Now"
               items={allItems.slice(5, 10)}
               loading={loading}
+              mode="bin"
             />
           </div>
 
           {/* Column 2 */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <div className="flex flex-col gap-5">
             <ResultsSection
               title="Recent Sales"
               items={allItems.slice(10, 15)}
               loading={loading}
+              mode="sold"
             />
           </div>
         </div>
