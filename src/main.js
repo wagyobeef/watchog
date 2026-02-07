@@ -16,13 +16,13 @@ const createWindow = () => {
     },
   });
 
-  // Set Content Security Policy to allow localhost connections
+  // Set Content Security Policy to allow localhost connections and eBay images
   mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
     callback({
       responseHeaders: {
         ...details.responseHeaders,
         'Content-Security-Policy': [
-          "default-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:* ws://localhost:*"
+          "default-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:* ws://localhost:*; img-src 'self' https://i.ebayimg.com https://*.ebayimg.com data:;"
         ]
       }
     });
