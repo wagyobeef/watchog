@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import TopBar from '../../components/TopBar.jsx';
-import AuctionResultsSection from './AuctionResultsSection.jsx';
-import ResultsSection from './ResultsSection.jsx';
+import UpcomingAuctionsSection from './UpcomingAuctionsSection.jsx';
+import ListingsInfoSection from './ListingsInfoSection.jsx';
 
-const SearchResultsPage = () => {
+const InfoPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const query = searchParams.get('query');
@@ -58,8 +58,8 @@ const SearchResultsPage = () => {
         <div className="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-5">
           {/* Column 1 */}
           <div className="flex flex-col gap-5">
-            <AuctionResultsSection query={query} />
-            <ResultsSection
+            <UpcomingAuctionsSection query={query} />
+            <ListingsInfoSection
               title="Lowest Buy It Now"
               items={allItems.slice(5, 10)}
               loading={loading}
@@ -69,7 +69,7 @@ const SearchResultsPage = () => {
 
           {/* Column 2 */}
           <div className="flex flex-col gap-5">
-            <ResultsSection
+            <ListingsInfoSection
               title="Recent Sales"
               items={allItems.slice(10, 15)}
               loading={loading}
@@ -82,4 +82,4 @@ const SearchResultsPage = () => {
   );
 };
 
-export default SearchResultsPage;
+export default InfoPage;

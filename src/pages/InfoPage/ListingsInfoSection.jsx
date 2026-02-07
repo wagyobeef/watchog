@@ -1,10 +1,10 @@
 import * as React from 'react';
-import ResultsItem from './ResultsItem.jsx';
+import ListingsInfoItem from './ListingsInfoItem.jsx';
 
-const ResultsSection = ({ title, items, loading, mode = 'bin' }) => {
+const ListingsInfoSection = ({ title, items, loading, mode = 'bin' }) => {
   return (
     <div className="border border-gray-300 rounded-lg bg-white p-5 shadow-sm h-full">
-      <h3 className="text-lg font-semibold mb-4 mt-0">
+      <h3 className="text-lg font-semibold mb-2 mt-0">
         {title}
       </h3>
 
@@ -16,9 +16,9 @@ const ResultsSection = ({ title, items, loading, mode = 'bin' }) => {
 
       {!loading && items && items.length > 0 && (
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col">
           {items.map((item) => (
-            <ResultsItem key={item.itemId} item={item} mode={mode} />
+            <ListingsInfoItem key={item.itemId} item={item} mode={mode} />
           ))}
         </div>
       )}
@@ -26,4 +26,4 @@ const ResultsSection = ({ title, items, loading, mode = 'bin' }) => {
   );
 };
 
-export default ResultsSection;
+export default ListingsInfoSection;

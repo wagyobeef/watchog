@@ -1,7 +1,7 @@
 import * as React from 'react';
-import ResultsSection from './ResultsSection.jsx';
+import ListingsInfoSection from './ListingsInfoSection.jsx';
 
-const AuctionResultsSection = ({ query }) => {
+const UpcomingAuctionsSection = ({ query }) => {
   const [auctionItems, setAuctionItems] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
 
@@ -34,7 +34,7 @@ const AuctionResultsSection = ({ query }) => {
   }, [query]);
 
   return (
-    <ResultsSection
+    <ListingsInfoSection
       title="Upcoming Auctions"
       items={auctionItems}
       loading={loading}
@@ -43,4 +43,4 @@ const AuctionResultsSection = ({ query }) => {
   );
 };
 
-export default AuctionResultsSection;
+export default UpcomingAuctionsSection;
