@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import TopBar from '../../components/TopBar.jsx';
+import ResultsSection from './ResultsSection.jsx';
 
 const SearchResultsPage = () => {
   const [searchParams] = useSearchParams();
@@ -29,6 +30,9 @@ const SearchResultsPage = () => {
     fetchResults();
   }, [query]);
 
+  // Get all items from results
+  const allItems = results?.results?.itemSummaries || [];
+
   return (
     <div style={{ fontFamily: 'Arial, sans-serif' }}>
       <TopBar
@@ -50,106 +54,43 @@ const SearchResultsPage = () => {
             <span>Home</span>
           </button>
         }
+        middleComponent={
+          <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>
+            {query}
+          </h3>
+        }
       />
 
       {/* Content */}
       <div style={{ padding: '20px' }}>
-        <h2>"{query}"</h2>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+          gap: '20px'
+        }}>
+          {/* Column 1 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <ResultsSection
+              title="Upcoming Auctions"
+              items={allItems.slice(0, 5)}
+              loading={loading}
+            />
+            <ResultsSection
+              title="Lowest Buy It Now"
+              items={allItems.slice(5, 10)}
+              loading={loading}
+            />
+          </div>
 
-      {loading && <p>Loading...</p>}
-
-      {results && results.results && results.results.itemSummaries && (
-        <div style={{ marginTop: '20px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '20px' }}>
-            {results.results.itemSummaries.slice(0, 3).map((item) => (
-              <div
-                key={item.itemId}
-                style={{
-                  display: 'flex',
-                  gap: '20px',
-                  padding: '15px',
-                  border: '1px solid #ddd',
-                  borderRadius: '8px',
-                  backgroundColor: '#fff',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                }}
-              >
-                {/* Image */}
-                <div style={{ flexShrink: 0, width: '80px', height: '80px' }}>
-                  <img
-                    src={item.image?.imageUrl || item.thumbnailImages?.[0]?.imageUrl || ''}
-                    alt={item.title}
-                    style={{
-                      width: '80px',
-                      height: '80px',
-                      objectFit: 'cover',
-                      borderRadius: '4px',
-                      display: 'block',
-                      backgroundColor: '#f0f0f0',
-                      border: '1px solid #ddd'
-                    }}
-                    onError={(e) => {
-                      console.log('Image failed to load:', item.image);
-                      e.target.style.display = 'none';
-                      e.target.parentElement.innerHTML = '<div style="width: 80px; height: 80px; background-color: #f0f0f0; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #999;">No Image</div>';
-                    }}
-                  />
-                </div>
-
-                {/* Content */}
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <h3 style={{ margin: 0, fontSize: '16px', lineHeight: '1.4' }}>
-                    {item.title}
-                  </h3>
-
-                  <div style={{ fontSize: '12px', color: '#999', fontFamily: 'monospace' }}>
-                    Image URL: {item.image?.imageUrl || 'NONE'}
-                  </div>
-
-                  <div style={{ display: 'flex', gap: '15px', fontSize: '14px', color: '#666' }}>
-                    <span><strong>Condition:</strong> {item.condition}</span>
-                    {item.seller && (
-                      <span><strong>Seller:</strong> {item.seller.username} ({item.seller.feedbackScore})</span>
-                    )}
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginTop: 'auto' }}>
-                    <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#2a6496' }}>
-                      ${parseFloat(item.price.value).toFixed(2)}
-                    </div>
-                    {item.shippingOptions?.[0]?.shippingCost?.value === "0.00" && (
-                      <span style={{ fontSize: '14px', color: '#28a745' }}>Free Shipping</span>
-                    )}
-                  </div>
-
-                  <a
-                    href={item.itemWebUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      padding: '10px 20px',
-                      backgroundColor: '#007bff',
-                      color: '#fff',
-                      textDecoration: 'none',
-                      borderRadius: '4px',
-                      textAlign: 'center',
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      alignSelf: 'flex-start'
-                    }}
-                  >
-                    View on eBay
-                  </a>
-                </div>
-              </div>
-            ))}
+          {/* Column 2 */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <ResultsSection
+              title="Recent Sales"
+              items={allItems.slice(10, 15)}
+              loading={loading}
+            />
           </div>
         </div>
-      )}
-
-      {!loading && results && (!results.results || !results.results.itemSummaries) && (
-        <p>No results found.</p>
-      )}
       </div>
     </div>
   );
