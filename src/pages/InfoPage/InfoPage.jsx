@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import TopBar from '../../components/TopBar.jsx';
 import UpcomingAuctionsSection from './UpcomingAuctionsSection.jsx';
+import BinsSection from './BinsSection.jsx';
 import ListingsInfoSection from './ListingsInfoSection.jsx';
 
 const InfoPage = () => {
@@ -59,12 +60,7 @@ const InfoPage = () => {
           {/* Column 1 */}
           <div className="flex flex-col gap-5">
             <UpcomingAuctionsSection query={query} />
-            <ListingsInfoSection
-              title="Lowest Buy It Now"
-              items={allItems.slice(5, 10)}
-              loading={loading}
-              mode="bin"
-            />
+            <BinsSection query={query} />
           </div>
 
           {/* Column 2 */}

@@ -29,23 +29,32 @@ const ListingsInfoItem = ({ item, mode = 'bin' }) => {
           {item.title}
         </a>
 
+        {/* Seller info - common for all modes */}
+        {item.seller && (
+          <div className="text-[11px] text-gray-600">
+            <strong>Seller:</strong> {item.seller.username} ({item.seller.feedbackScore})
+          </div>
+        )}
+
         {/* Mode-specific information */}
         {mode === 'auction' && (
           <div className="text-[11px] text-gray-600 mt-auto">
+            {item.itemEndDate && (
+              <div className="text-red-600 font-medium mb-1">
+                Ends: {new Date(item.itemEndDate).toLocaleDateString()} {new Date(item.itemEndDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </div>
+            )}
             {item.currentBidPrice?.value && (
-              <div className="mb-1">
+              <div>
                 <strong>Current Bid:</strong>{' '}
                 <span className="text-sm font-bold text-blue-700">
                   ${parseFloat(item.currentBidPrice.value).toFixed(2)}
+                  {item.bidCount !== undefined && (
+                    <span className="text-[11px] font-normal text-gray-600 ml-1">
+                      ({item.bidCount} bid{item.bidCount !== 1 ? 's' : ''})
+                    </span>
+                  )}
                 </span>
-              </div>
-            )}
-            {item.bidCount !== undefined && (
-              <div>{item.bidCount} bid{item.bidCount !== 1 ? 's' : ''}</div>
-            )}
-            {item.itemEndDate && (
-              <div className="text-red-600 font-medium">
-                Ends: {new Date(item.itemEndDate).toLocaleDateString()} {new Date(item.itemEndDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
             )}
           </div>
@@ -53,22 +62,14 @@ const ListingsInfoItem = ({ item, mode = 'bin' }) => {
 
         {mode === 'sold' && (
           <div className="text-[11px] text-gray-600 mt-auto">
-            {item.price?.value && (
-              <div className="mb-1">
-                <strong>Sold Price:</strong>{' '}
-                <span className="text-sm font-bold text-green-600">
-                  ${parseFloat(item.price.value).toFixed(2)}
-                </span>
-              </div>
-            )}
-            {item.seller && (
-              <div>
-                <strong>Seller:</strong> {item.seller.username} ({item.seller.feedbackScore})
-              </div>
-            )}
             {item.itemEndDate && (
-              <div className="text-gray-600">
+              <div className="text-gray-600 mb-1">
                 Sold: {new Date(item.itemEndDate).toLocaleDateString()}
+              </div>
+            )}
+            {item.price?.value && (
+              <div className="text-sm font-bold text-green-600">
+                ${parseFloat(item.price.value).toFixed(2)}
               </div>
             )}
           </div>
@@ -84,11 +85,6 @@ const ListingsInfoItem = ({ item, mode = 'bin' }) => {
                 {item.shippingOptions?.[0]?.shippingCost?.value === "0.00" && (
                   <span className="text-[11px] text-green-600">Free Shipping</span>
                 )}
-              </div>
-            )}
-            {item.seller && (
-              <div className="text-[11px] text-gray-600">
-                <strong>Seller:</strong> {item.seller.username} ({item.seller.feedbackScore})
               </div>
             )}
           </div>
