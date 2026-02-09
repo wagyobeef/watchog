@@ -3,7 +3,7 @@ import ListingsInfoItem from './ListingsInfoItem.jsx';
 
 const ListingsInfoSection = ({ title, items, loading, mode = 'bin' }) => {
   return (
-    <div className="border border-gray-300 rounded-lg bg-white p-5 shadow-sm h-full">
+    <div className="border border-gray-300 rounded-lg bg-white p-5 shadow-sm">
       <h3 className="text-lg font-semibold mb-2 mt-0">
         {title}
       </h3>

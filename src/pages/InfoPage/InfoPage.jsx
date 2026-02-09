@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import TopBar from '../../components/TopBar.jsx';
-import UpcomingAuctionsSection from './UpcomingAuctionsSection.jsx';
-import BinsSection from './BinsSection.jsx';
-import ListingsInfoSection from './ListingsInfoSection.jsx';
+import AuctionsInfoSection from './AuctionsInfoSection.jsx';
+import BinsInfoSection from './BinsInfoSection.jsx';
+import SalesInfoSection from './SalesInfoSection.jsx';
 
 const InfoPage = () => {
   const [searchParams] = useSearchParams();
@@ -54,23 +54,15 @@ const InfoPage = () => {
         }
       />
 
-      {/* Content */}
       <div className="p-5">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-5">
-          {/* Column 1 */}
           <div className="flex flex-col gap-5">
-            <UpcomingAuctionsSection query={query} />
-            <BinsSection query={query} />
+            <AuctionsInfoSection query={query} />
+            <BinsInfoSection query={query} />
           </div>
 
-          {/* Column 2 */}
           <div className="flex flex-col gap-5">
-            <ListingsInfoSection
-              title="Recent Sales"
-              items={allItems.slice(10, 15)}
-              loading={loading}
-              mode="sold"
-            />
+            <SalesInfoSection query={query} />
           </div>
         </div>
       </div>

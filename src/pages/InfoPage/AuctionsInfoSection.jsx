@@ -12,7 +12,7 @@ const UpcomingAuctionsSection = ({ query }) => {
       setLoading(true);
       try {
         const response = await fetch(
-          `http://localhost:3001/api/auctionsInfo?query=${encodeURIComponent(query)}`
+          `http://localhost:3001/api/itemAuctionsInfo?query=${encodeURIComponent(query)}`
         );
         const data = await response.json();
 

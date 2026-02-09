@@ -12,7 +12,7 @@ const BinsSection = ({ query }) => {
       setLoading(true);
       try {
         const response = await fetch(
-          `http://localhost:3001/api/binInfo?query=${encodeURIComponent(query)}`
+          `http://localhost:3001/api/itemBinsInfo?query=${encodeURIComponent(query)}`
         );
         const data = await response.json();
 
@@ -23,9 +23,6 @@ const BinsSection = ({ query }) => {
             const priceB = parseFloat(b.price?.value || 0);
             return priceA - priceB;
           });
-
-        console.log('Buy It Now items:', bins);
-        console.log('First bin item:', bins[0]);
 
         setBinItems(bins);
       } catch (error) {

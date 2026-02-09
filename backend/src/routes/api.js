@@ -1,5 +1,5 @@
 import express from 'express';
-import { getEbayItemResults } from '../utils/ebay.js';
+import { getEbayItemListings } from '../utils/ebay.js';
 
 const router = express.Router();
 
@@ -7,21 +7,7 @@ router.get('/health', (req, res) => {
   res.json({ status: 'OK', message: 'Server is healthy' });
 });
 
-router.get('/itemResults', async (req, res) => {
-  try {
-    const query = req.query.query;
-    if (!query) {
-      return res.status(400).json({ error: 'Query parameter is required' });
-    }
-    const results = await getEbayItemResults(query);
-    res.json({ results });
-  } catch (error) {
-    console.error('Error fetching eBay results:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-router.get('/auctionsInfo', async (req, res) => {
+router.get('/itemAuctionsInfo', async (req, res) => {
   try {
     const query = req.query.query;
     if (!query) {
@@ -35,7 +21,7 @@ router.get('/auctionsInfo', async (req, res) => {
       limit: req.query.limit || 3
     };
 
-    const results = await getEbayItemResults(query, options);
+    const results = await getEbayItemListings(query, options);
     res.json({ results });
   } catch (error) {
     console.error('Error fetching eBay auction results:', error);
@@ -43,7 +29,7 @@ router.get('/auctionsInfo', async (req, res) => {
   }
 });
 
-router.get('/binInfo', async (req, res) => {
+router.get('/itemBinsInfo', async (req, res) => {
   try {
     const query = req.query.query;
     if (!query) {
@@ -57,13 +43,17 @@ router.get('/binInfo', async (req, res) => {
       limit: req.query.limit || 5
     };
 
-    const results = await getEbayItemResults(query, options);
+    const results = await getEbayItemListings(query, options);
     console.log(results)
     res.json({ results });
   } catch (error) {
     console.error('Error fetching eBay buy it now results:', error);
     res.status(500).json({ error: error.message });
   }
+});
+
+router.get('/itemSalesInfo', async (req, res) => {
+
 });
 
 export default router;

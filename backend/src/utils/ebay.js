@@ -44,7 +44,7 @@ function getEbaySearchUrl() {
     return "https://api.ebay.com/buy/browse/v1/item_summary/search";
 }
 
-async function getEbayItemResults(query, options = {}) {
+async function getEbayItemListings(query, options = {}) {
     if (!ebayAccessToken) {
         await getEbayAccessToken();
     }
@@ -87,5 +87,5 @@ async function getEbayItemResults(query, options = {}) {
 export {
   getEbayAccessToken,
   getEbayOauthUrl,
-  getEbayItemResults
+  getEbayItemListings
 };
