@@ -87,5 +87,5 @@ async function getEbayItemListings(query, options = {}) {
 export {
   getEbayAccessToken,
   getEbayOauthUrl,
-  getEbayItemListings
+  getEbayItemListings,
 };

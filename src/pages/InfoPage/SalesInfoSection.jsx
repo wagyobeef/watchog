@@ -15,6 +15,8 @@ const SalesInfoSection = ({ query }) => {
           `http://localhost:3001/api/itemSalesInfo?query=${encodeURIComponent(query)}`
         );
         const data = await response.json();
+        console.log("sales")
+        console.log(data);
         setSales(data.results?.itemSummaries || []);
       } catch (error) {
         console.error('Error fetching sales:', error);

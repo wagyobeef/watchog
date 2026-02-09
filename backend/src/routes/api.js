@@ -1,5 +1,6 @@
 import express from 'express';
 import { getEbayItemListings } from '../utils/ebay.js';
+import { getItemSales } from '../utils/sales.js';
 
 const router = express.Router();
 
@@ -44,7 +45,6 @@ router.get('/itemBinsInfo', async (req, res) => {
     };
 
     const results = await getEbayItemListings(query, options);
-    console.log(results)
     res.json({ results });
   } catch (error) {
     console.error('Error fetching eBay buy it now results:', error);
@@ -53,7 +53,18 @@ router.get('/itemBinsInfo', async (req, res) => {
 });
 
 router.get('/itemSalesInfo', async (req, res) => {
+  try {
+    const query = req.query.query;
+    if (!query) {
+      return res.status(400).json({ error: 'Query parameter is required' });
+    }
 
+    const itemSales = await getItemSales(query);
+    res.json({ itemSales });
+  } catch (error) {
+    console.error('Error fetching Alt.xyz sales:', error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
 export default router;
