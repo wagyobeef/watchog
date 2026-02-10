@@ -4,11 +4,13 @@ import TopBar from '../../components/TopBar.jsx';
 import AuctionsInfoSection from './AuctionsInfoSection.jsx';
 import BinsInfoSection from './BinsInfoSection.jsx';
 import SalesInfoSection from './SalesInfoSection.jsx';
+import SaveSearchButton from './SaveSearchButton.jsx';
 
 const InfoPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const query = searchParams.get('query');
+  const savedSearchId = searchParams.get('id');
 
   return (
     <div>
@@ -26,6 +28,9 @@ const InfoPage = () => {
           <h3 className="m-0 text-base font-semibold">
             {query}
           </h3>
+        }
+        rightComponent={
+          <SaveSearchButton query={query} savedSearchId={savedSearchId} />
         }
       />
 
