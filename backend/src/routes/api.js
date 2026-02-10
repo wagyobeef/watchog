@@ -60,6 +60,8 @@ router.get('/itemSalesInfo', async (req, res) => {
     }
 
     const itemSales = await getItemSales(query);
+    console.log("itemSales");
+    console.log(itemSales);
     res.json({ itemSales });
   } catch (error) {
     console.error('Error fetching Alt.xyz sales:', error);

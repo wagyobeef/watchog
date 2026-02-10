@@ -1,5 +1,5 @@
 import * as React from 'react';
-import ListingsInfoSection from './ListingsInfoSection.jsx';
+import SalesInfoItem from './SalesInfoItem.jsx';
 
 const SalesInfoSection = ({ query }) => {
   const [sales, setSales] = React.useState([]);
@@ -15,9 +15,7 @@ const SalesInfoSection = ({ query }) => {
           `http://localhost:3001/api/itemSalesInfo?query=${encodeURIComponent(query)}`
         );
         const data = await response.json();
-        console.log("sales")
-        console.log(data);
-        setSales(data.results?.itemSummaries || []);
+        setSales(data.itemSales || []);
       } catch (error) {
         console.error('Error fetching sales:', error);
       } finally {
@@ -28,16 +26,26 @@ const SalesInfoSection = ({ query }) => {
     fetchSales();
   }, [query]);
 
-  console.log("sales");
-  console.log(sales)
-
   return (
-    <ListingsInfoSection
-      title="Recent Sales"
-      items={sales}
-      loading={loading}
-      mode="sold"
-    />
+    <div className="border border-gray-300 rounded-lg bg-white p-5 shadow-sm">
+      <h3 className="text-lg font-semibold mb-2 mt-0">
+        Recent Sales
+      </h3>
+
+      {loading && <p className="text-gray-600">Loading...</p>}
+
+      {!loading && (!sales || sales.length === 0) && (
+        <p className="text-gray-600">No sales found.</p>
+      )}
+
+      {!loading && sales && sales.length > 0 && (
+        <div className="flex flex-col">
+          {sales.map((sale) => (
+            <SalesInfoItem key={sale.itemId} sale={sale} />
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 

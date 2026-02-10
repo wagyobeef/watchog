@@ -38,7 +38,11 @@ async function navigateToItemSales(query) {
             timeout: 30000
         });
 
-        await page.waitForTimeout(5000);
+        // Wait for the "Recent transactions" section to appear
+        await page.waitForSelector('h3:has-text("Recent transactions")', { timeout: 10000 });
+
+        // Wait for dynamic content to load (Alt.xyz fetches listings via API)
+        await page.waitForTimeout(10000);
 
         // Get the HTML content of the listing detail page
         const html = await page.content();
@@ -63,16 +67,23 @@ function extractItemSales(html) {
         return [];
     }
 
-    // Navigate up to find the parent container and then get its sibling
-    // The heading is in <div class="css-1uvvwkq">, we need to find its parent's next sibling
-    const headingContainer = recentTransactionsHeading.closest('.css-1uvvwkq');
-    const container = headingContainer.parent().nextAll().first();
+    // Go up two parents to get the outer container
+    const container = recentTransactionsHeading.parent().parent();
+
+    const allLinks = container.find('a[href*="ebay.com"]');
 
     // Find all eBay listing links within that container only
     const listings = [];
-    container.find('a[href*="ebay.com"]').each((index, element) => {
+    allLinks.each((index, element) => {
         const $el = $(element);
-        const ebayUrl = $el.attr('href');
+        const href = $el.attr('href');
+
+        // Only process eBay links
+        if (!href || !href.includes('ebay.com')) {
+            return;
+        }
+
+        const ebayUrl = href;
 
         // Use MUI Typography classes which are more stable
         // Find all subtitle2 and body3 elements within this link
@@ -102,17 +113,14 @@ function extractItemSales(html) {
         }
     });
 
-    console.log(`Extracted ${listings.length} listings`);
-    console.log(listings);
-
     return listings;
 }
 
 async function getItemSales(query) {
     const html = await navigateToItemSales(query);
-    console.log("item sales html");
-    console.log(html);
     const listings = extractItemSales(html);
+
+    console.log(`Extracted ${listings.length} sales for "${query}"`);
 
     return listings;
 }
