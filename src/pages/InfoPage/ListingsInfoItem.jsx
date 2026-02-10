@@ -4,7 +4,12 @@ const ListingsInfoItem = ({ item, mode = 'bin' }) => {
   // mode can be: 'auction', 'sold', 'bin' (buy it now)
 
   return (
-    <div className="flex gap-3 py-3 border-b border-gray-200 last:border-b-0">
+    <a
+      href={item.itemWebUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex gap-3 py-3 px-3 -mx-3 border-b border-gray-200 last:border-b-0 no-underline hover:bg-gray-100 transition-colors cursor-pointer rounded"
+    >
       <div className="shrink-0 w-[60px] h-[100px]">
         <img
           src={item.image?.imageUrl || item.thumbnailImages?.[0]?.imageUrl || ''}
@@ -20,14 +25,9 @@ const ListingsInfoItem = ({ item, mode = 'bin' }) => {
       {/* Content */}
       <div className="flex-1 flex flex-col gap-1.5 min-w-0">
         {/* Title - common for all modes */}
-        <a
-          href={item.itemWebUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="m-0 text-[13px] leading-snug font-medium overflow-hidden text-ellipsis line-clamp-2 text-gray-900 no-underline hover:underline cursor-pointer"
-        >
+        <div className="m-0 text-[13px] leading-snug font-medium overflow-hidden text-ellipsis line-clamp-2 text-gray-900">
           {item.title}
-        </a>
+        </div>
 
         {/* Seller info - common for all modes */}
         {item.seller && (
@@ -90,7 +90,7 @@ const ListingsInfoItem = ({ item, mode = 'bin' }) => {
           </div>
         )}
       </div>
-    </div>
+    </a>
   );
 };
 
