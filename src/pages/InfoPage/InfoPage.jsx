@@ -9,31 +9,6 @@ const InfoPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const query = searchParams.get('query');
-  const [results, setResults] = React.useState(null);
-  const [loading, setLoading] = React.useState(false);
-
-  React.useEffect(() => {
-    if (!query) return;
-
-    const fetchResults = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(`http://localhost:3001/api/itemResults?query=${encodeURIComponent(query)}`);
-        const data = await response.json();
-        console.log(data);
-        setResults(data);
-      } catch (error) {
-        console.error('Error fetching item results:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchResults();
-  }, [query]);
-
-  // Get all items from results
-  const allItems = results?.results?.itemSummaries || [];
 
   return (
     <div>

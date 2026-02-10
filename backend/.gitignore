@@ -22,3 +22,7 @@ Thumbs.db
 # Build files
 dist/
 build/
+
+*.db
+*.db-shm
+*.db-wal
