@@ -77,7 +77,7 @@ const SummarySection = ({ query, savedSearchId, savedSearch }) => {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <div className="flex items-center gap-1 mb-1">
-            <div className="text-[13px] leading-snug font-medium text-gray-900">Your Cost</div>
+            <div className="text-[13px] leading-snug font-medium text-gray-900">My Cost</div>
             {savedSearchId && (
               <button
                 onClick={handleEdit}
