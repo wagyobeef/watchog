@@ -18,9 +18,42 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     query TEXT NOT NULL UNIQUE,
     cost INTEGER,
+    costUpdatedAt DATETIME,
+    lastSale INTEGER,
+    lastSaleLink TEXT,
+    lastSaleOccurredAt DATETIME,
+    lastSaleUpdatedAt DATETIME,
+    lowestBin INTEGER,
+    lowestBinLink TEXT,
+    lowestBinUpdatedAt DATETIME,
+    nextAuctionCurrentPrice INTEGER,
+    nextAuctionLink TEXT,
+    nextAuctionEndAt DATETIME,
+    nextAuctionUpdatedAt DATETIME,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
   )
 `);
+
+// TEMPORARY MIGRATION: Add link columns if they don't exist
+// TODO: Remove this after running once
+const linkColumnsToAdd = [
+  'lastSaleLink TEXT',
+  'lowestBinLink TEXT',
+  'nextAuctionLink TEXT'
+];
+
+linkColumnsToAdd.forEach(column => {
+  try {
+    db.exec(`ALTER TABLE savedSearches ADD COLUMN ${column}`);
+    console.log(`✅ Migration: Added ${column.split(' ')[0]} column`);
+  } catch (error) {
+    if (error.message.includes('duplicate column name')) {
+      // Column already exists, skip silently
+    } else {
+      console.error(`❌ Migration error for ${column}:`, error);
+    }
+  }
+});
 
 console.log('Database initialized at:', dbPath);
 

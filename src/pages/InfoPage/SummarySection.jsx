@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { FiEdit2 } from 'react-icons/fi';
+import { FiEdit2, FiExternalLink } from 'react-icons/fi';
 
-const SummarySection = ({ query, savedSearchId, savedSearch }) => {
+const SummarySection = ({ query, savedSearchId, savedSearch, summaryData }) => {
   const [isEditing, setIsEditing] = React.useState(false);
   const [yourCost, setYourCost] = React.useState('');
   const [tempCost, setTempCost] = React.useState('');
@@ -110,18 +110,69 @@ const SummarySection = ({ query, savedSearchId, savedSearch }) => {
         </div>
 
         <div>
-          <div className="text-[13px] leading-snug font-medium text-gray-900 mb-1">Last Sale</div>
-          <div className="text-lg font-semibold">$75</div>
+          <div className="flex items-center gap-1 mb-1">
+            <div className="text-[13px] leading-snug font-medium text-gray-900">Last Sale</div>
+            {summaryData?.lastSaleLink && (
+              <a
+                href={summaryData.lastSaleLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-0.5 hover:bg-gray-200 rounded transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <FiExternalLink className="text-[11px] text-gray-600" />
+              </a>
+            )}
+          </div>
+          <div className="text-lg font-semibold">
+            {summaryData?.lastSale !== null && summaryData?.lastSale !== undefined
+              ? `$${summaryData.lastSale}`
+              : '--'}
+          </div>
         </div>
 
         <div>
-          <div className="text-[13px] leading-snug font-medium text-gray-900 mb-1">Lowest BIN</div>
-          <div className="text-lg font-semibold">$65</div>
+          <div className="flex items-center gap-1 mb-1">
+            <div className="text-[13px] leading-snug font-medium text-gray-900">Lowest BIN</div>
+            {summaryData?.lowestBinLink && (
+              <a
+                href={summaryData.lowestBinLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-0.5 hover:bg-gray-200 rounded transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <FiExternalLink className="text-[11px] text-gray-600" />
+              </a>
+            )}
+          </div>
+          <div className="text-lg font-semibold">
+            {summaryData?.lowestBin !== null && summaryData?.lowestBin !== undefined
+              ? `$${summaryData.lowestBin}`
+              : '--'}
+          </div>
         </div>
 
         <div>
-          <div className="text-[13px] leading-snug font-medium text-gray-900 mb-1">Next Auction</div>
-          <div className="text-lg font-semibold">$45</div>
+          <div className="flex items-center gap-1 mb-1">
+            <div className="text-[13px] leading-snug font-medium text-gray-900">Next Auction</div>
+            {summaryData?.nextAuctionLink && (
+              <a
+                href={summaryData.nextAuctionLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-0.5 hover:bg-gray-200 rounded transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <FiExternalLink className="text-[11px] text-gray-600" />
+              </a>
+            )}
+          </div>
+          <div className="text-lg font-semibold">
+            {summaryData?.nextAuctionCurrentPrice !== null && summaryData?.nextAuctionCurrentPrice !== undefined
+              ? `$${summaryData.nextAuctionCurrentPrice}`
+              : '--'}
+          </div>
         </div>
       </div>
     </div>

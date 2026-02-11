@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FiExternalLink } from 'react-icons/fi';
 
 const SavedItemsRow = ({ search }) => {
   const navigate = useNavigate();
@@ -26,18 +27,52 @@ const SavedItemsRow = ({ search }) => {
         </div>
 
         <div>
-          <div className="text-[13px] leading-snug font-medium text-gray-900 mb-1">Last Sale</div>
-          <div className="text-lg font-semibold">--</div>
+          <div className="flex items-center gap-1 mb-1">
+            <div className="text-[13px] leading-snug font-medium text-gray-900">Last Sale</div>
+            {search.lastSaleLink && (
+              <a
+                href={search.lastSaleLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-0.5 hover:bg-gray-200 rounded transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <FiExternalLink className="text-[11px] text-gray-600" />
+              </a>
+            )}
+          </div>
+          <div className="text-lg font-semibold">
+            {search.lastSale !== null && search.lastSale !== undefined ? `$${search.lastSale}` : '--'}
+          </div>
         </div>
 
         <div>
-          <div className="text-[13px] leading-snug font-medium text-gray-900 mb-1">Lowest BIN</div>
-          <div className="text-lg font-semibold">--</div>
+          <div className="flex items-center gap-1 mb-1">
+            <div className="text-[13px] leading-snug font-medium text-gray-900">Lowest BIN</div>
+            {search.lowestBinLink && (
+              <a
+                href={search.lowestBinLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-0.5 hover:bg-gray-200 rounded transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <FiExternalLink className="text-[11px] text-gray-600" />
+              </a>
+            )}
+          </div>
+          <div className="text-lg font-semibold">
+            {search.lowestBin !== null && search.lowestBin !== undefined ? `$${search.lowestBin}` : '--'}
+          </div>
         </div>
 
         <div>
           <div className="text-[13px] leading-snug font-medium text-gray-900 mb-1">Next Auction</div>
-          <div className="text-lg font-semibold">--</div>
+          <div className="text-lg font-semibold">
+            {search.nextAuctionCurrentPrice !== null && search.nextAuctionCurrentPrice !== undefined
+              ? `$${search.nextAuctionCurrentPrice}`
+              : '--'}
+          </div>
         </div>
       </div>
     </button>

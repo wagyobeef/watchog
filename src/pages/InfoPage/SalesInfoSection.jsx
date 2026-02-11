@@ -2,7 +2,7 @@ import * as React from 'react';
 import SalesInfoItem from './SalesInfoItem.jsx';
 import LoadingIndicator from '../../components/LoadingIndicator.jsx';
 
-const SalesInfoSection = ({ query }) => {
+const SalesInfoSection = ({ query, savedSearchId, onDataUpdated, onSummaryUpdate }) => {
   const [sales, setSales] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
 
@@ -12,11 +12,29 @@ const SalesInfoSection = ({ query }) => {
     const fetchSales = async () => {
       setLoading(true);
       try {
-        const response = await fetch(
-          `http://localhost:3001/api/itemSalesInfo?query=${encodeURIComponent(query)}`
-        );
+        const url = new URL('http://localhost:3001/api/itemSalesInfo');
+        url.searchParams.append('query', query);
+        if (savedSearchId) {
+          url.searchParams.append('savedSearchId', savedSearchId);
+        }
+        const response = await fetch(url);
         const data = await response.json();
         setSales(data.itemSales || []);
+
+        // Update summary with latest sale data
+        if (data.itemSales?.length > 0 && onSummaryUpdate) {
+          const mostRecentSale = data.itemSales[0];
+          onSummaryUpdate({
+            lastSale: mostRecentSale.price?.value ? Math.round(parseFloat(mostRecentSale.price.value)) : null,
+            lastSaleLink: mostRecentSale.itemWebUrl || null,
+            lastSaleOccurredAt: mostRecentSale.saleDate || null
+          });
+        }
+
+        // Notify parent that data was updated
+        if (savedSearchId && onDataUpdated) {
+          onDataUpdated();
+        }
       } catch (error) {
         console.error('Error fetching sales:', error);
       } finally {
@@ -25,7 +43,7 @@ const SalesInfoSection = ({ query }) => {
     };
 
     fetchSales();
-  }, [query]);
+  }, [query, savedSearchId, onDataUpdated, onSummaryUpdate]);
 
   return (
     <div className="border border-gray-300 rounded-lg bg-white p-5 shadow-sm">

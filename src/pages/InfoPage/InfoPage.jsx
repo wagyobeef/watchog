@@ -14,26 +14,62 @@ const InfoPage = () => {
   const query = searchParams.get('query');
   const savedSearchId = searchParams.get('id');
   const [savedSearch, setSavedSearch] = React.useState(null);
+  const [refreshKey, setRefreshKey] = React.useState(0);
 
-  React.useEffect(() => {
+  // Live summary data (from current API calls)
+  const [summaryData, setSummaryData] = React.useState({
+    lastSale: null,
+    lastSaleLink: null,
+    lastSaleOccurredAt: null,
+    lowestBin: null,
+    lowestBinLink: null,
+    nextAuctionCurrentPrice: null,
+    nextAuctionLink: null,
+    nextAuctionEndAt: null
+  });
+
+  const fetchSavedSearch = React.useCallback(async () => {
     if (!savedSearchId) {
       setSavedSearch(null);
       return;
     }
 
-    const fetchSavedSearch = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/api/savedSearches');
-        const data = await response.json();
-        const search = data.searches?.find(s => s.id === parseInt(savedSearchId));
-        setSavedSearch(search || null);
-      } catch (error) {
-        console.error('Error fetching saved search:', error);
-      }
-    };
+    try {
+      const response = await fetch('http://localhost:3001/api/savedSearches');
+      const data = await response.json();
+      const search = data.searches?.find(s => s.id === parseInt(savedSearchId));
+      setSavedSearch(search || null);
 
-    fetchSavedSearch();
+      // Initialize summary data with cached values if available
+      if (search) {
+        setSummaryData({
+          lastSale: search.lastSale,
+          lastSaleLink: search.lastSaleLink,
+          lastSaleOccurredAt: search.lastSaleOccurredAt,
+          lowestBin: search.lowestBin,
+          lowestBinLink: search.lowestBinLink,
+          nextAuctionCurrentPrice: search.nextAuctionCurrentPrice,
+          nextAuctionLink: search.nextAuctionLink,
+          nextAuctionEndAt: search.nextAuctionEndAt
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching saved search:', error);
+    }
   }, [savedSearchId]);
+
+  React.useEffect(() => {
+    fetchSavedSearch();
+  }, [fetchSavedSearch, refreshKey]);
+
+  const handleDataUpdated = React.useCallback(() => {
+    // Trigger a refresh of saved search data
+    setRefreshKey(prev => prev + 1);
+  }, []);
+
+  const updateSummaryData = React.useCallback((updates) => {
+    setSummaryData(prev => ({ ...prev, ...updates }));
+  }, []);
 
   return (
     <div>
@@ -53,20 +89,40 @@ const InfoPage = () => {
           </h3>
         }
         rightComponent={
-          <SaveSearchButton query={query} savedSearchId={savedSearchId} />
+          <SaveSearchButton query={query} savedSearchId={savedSearchId} summaryData={summaryData} />
         }
       />
 
       <div className="p-5">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-5">
           <div className="flex flex-col gap-5">
-            <SummarySection query={query} savedSearchId={savedSearchId} savedSearch={savedSearch} />
-            <SalesInfoSection query={query} />
+            <SummarySection
+              query={query}
+              savedSearchId={savedSearchId}
+              savedSearch={savedSearch}
+              summaryData={summaryData}
+            />
+            <SalesInfoSection
+              query={query}
+              savedSearchId={savedSearchId}
+              onDataUpdated={handleDataUpdated}
+              onSummaryUpdate={updateSummaryData}
+            />
           </div>
 
           <div className="flex flex-col gap-5">
-            <AuctionsInfoSection query={query} />
-            <BinsInfoSection query={query} />
+            <AuctionsInfoSection
+              query={query}
+              savedSearchId={savedSearchId}
+              onDataUpdated={handleDataUpdated}
+              onSummaryUpdate={updateSummaryData}
+            />
+            <BinsInfoSection
+              query={query}
+              savedSearchId={savedSearchId}
+              onDataUpdated={handleDataUpdated}
+              onSummaryUpdate={updateSummaryData}
+            />
           </div>
         </div>
       </div>

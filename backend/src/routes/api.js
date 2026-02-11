@@ -12,6 +12,8 @@ router.get('/health', (req, res) => {
 router.get('/itemAuctionsInfo', async (req, res) => {
   try {
     const query = req.query.query;
+    const savedSearchId = req.query.savedSearchId;
+
     if (!query) {
       return res.status(400).json({ error: 'Query parameter is required' });
     }
@@ -24,6 +26,30 @@ router.get('/itemAuctionsInfo', async (req, res) => {
     };
 
     const results = await getEbayItemListings(query, options);
+
+    // Update database if savedSearchId is provided and we have results
+    if (savedSearchId && results?.itemSummaries?.length > 0) {
+      const nextAuction = results.itemSummaries[0];
+      const currentPrice = nextAuction.currentBidPrice?.value || nextAuction.price?.value;
+      const endDate = nextAuction.itemEndDate;
+      const link = nextAuction.itemWebUrl;
+
+      if (currentPrice && endDate && link) {
+        try {
+          db.prepare(`
+            UPDATE savedSearches
+            SET nextAuctionCurrentPrice = ?,
+                nextAuctionLink = ?,
+                nextAuctionEndAt = ?,
+                nextAuctionUpdatedAt = CURRENT_TIMESTAMP
+            WHERE id = ?
+          `).run(Math.round(parseFloat(currentPrice)), link, endDate, savedSearchId);
+        } catch (dbError) {
+          console.error('Error updating auction data:', dbError);
+        }
+      }
+    }
+
     res.json({ results });
   } catch (error) {
     console.error('Error fetching eBay auction results:', error);
@@ -34,6 +60,8 @@ router.get('/itemAuctionsInfo', async (req, res) => {
 router.get('/itemBinsInfo', async (req, res) => {
   try {
     const query = req.query.query;
+    const savedSearchId = req.query.savedSearchId;
+
     if (!query) {
       return res.status(400).json({ error: 'Query parameter is required' });
     }
@@ -46,6 +74,28 @@ router.get('/itemBinsInfo', async (req, res) => {
     };
 
     const results = await getEbayItemListings(query, options);
+
+    // Update database if savedSearchId is provided and we have results
+    if (savedSearchId && results?.itemSummaries?.length > 0) {
+      const lowestBinItem = results.itemSummaries[0];
+      const lowestPrice = lowestBinItem.price?.value;
+      const link = lowestBinItem.itemWebUrl;
+
+      if (lowestPrice && link) {
+        try {
+          db.prepare(`
+            UPDATE savedSearches
+            SET lowestBin = ?,
+                lowestBinLink = ?,
+                lowestBinUpdatedAt = CURRENT_TIMESTAMP
+            WHERE id = ?
+          `).run(Math.round(parseFloat(lowestPrice)), link, savedSearchId);
+        } catch (dbError) {
+          console.error('Error updating BIN data:', dbError);
+        }
+      }
+    }
+
     res.json({ results });
   } catch (error) {
     console.error('Error fetching eBay buy it now results:', error);
@@ -56,11 +106,37 @@ router.get('/itemBinsInfo', async (req, res) => {
 router.get('/itemSalesInfo', async (req, res) => {
   try {
     const query = req.query.query;
+    const savedSearchId = req.query.savedSearchId;
+
     if (!query) {
       return res.status(400).json({ error: 'Query parameter is required' });
     }
 
     const itemSales = await getItemSales(query);
+
+    // Update database if savedSearchId is provided and we have sales
+    if (savedSearchId && itemSales?.length > 0) {
+      const mostRecentSale = itemSales[0];
+      const salePrice = mostRecentSale.price?.value;
+      const saleDate = mostRecentSale.saleDate;
+      const link = mostRecentSale.itemWebUrl;
+
+      if (salePrice && link) {
+        try {
+          db.prepare(`
+            UPDATE savedSearches
+            SET lastSale = ?,
+                lastSaleLink = ?,
+                lastSaleOccurredAt = ?,
+                lastSaleUpdatedAt = CURRENT_TIMESTAMP
+            WHERE id = ?
+          `).run(Math.round(parseFloat(salePrice)), link, saleDate || null, savedSearchId);
+        } catch (dbError) {
+          console.error('Error updating sales data:', dbError);
+        }
+      }
+    }
+
     res.json({ itemSales });
   } catch (error) {
     console.error('Error fetching Alt.xyz sales:', error);
@@ -82,15 +158,50 @@ router.get('/savedSearches', async (req, res) => {
 
 router.post('/savedSearch', async (req, res) => {
   try {
-    const { query } = req.body;
+    const {
+      query,
+      lastSale,
+      lastSaleLink,
+      lastSaleOccurredAt,
+      lowestBin,
+      lowestBinLink,
+      nextAuctionCurrentPrice,
+      nextAuctionLink,
+      nextAuctionEndAt
+    } = req.body;
 
     if (!query || !query.trim()) {
       return res.status(400).json({ error: 'Query is required' });
     }
 
-    // Insert the search query into the database
-    const stmt = db.prepare('INSERT INTO savedSearches (query) VALUES (?)');
-    const result = stmt.run(query.trim());
+    // Insert the search query with initial summary data
+    const stmt = db.prepare(`
+      INSERT INTO savedSearches (
+        query,
+        lastSale,
+        lastSaleLink,
+        lastSaleOccurredAt,
+        lastSaleUpdatedAt,
+        lowestBin,
+        lowestBinLink,
+        lowestBinUpdatedAt,
+        nextAuctionCurrentPrice,
+        nextAuctionLink,
+        nextAuctionEndAt,
+        nextAuctionUpdatedAt
+      ) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, CURRENT_TIMESTAMP)
+    `);
+    const result = stmt.run(
+      query.trim(),
+      lastSale || null,
+      lastSaleLink || null,
+      lastSaleOccurredAt || null,
+      lowestBin || null,
+      lowestBinLink || null,
+      nextAuctionCurrentPrice || null,
+      nextAuctionLink || null,
+      nextAuctionEndAt || null
+    );
 
     res.json({
       success: true,
