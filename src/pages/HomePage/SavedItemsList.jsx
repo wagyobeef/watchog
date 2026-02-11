@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
+import SavedItemsRow from './SavedItemsRow.jsx';
 
 const SavedItemsList = () => {
   const [searches, setSearches] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
-  const navigate = useNavigate();
 
   React.useEffect(() => {
     const fetchSavedSearches = async () => {
@@ -23,10 +22,6 @@ const SavedItemsList = () => {
     fetchSavedSearches();
   }, []);
 
-  const handleSearchClick = (query, id) => {
-    navigate(`/search?query=${encodeURIComponent(query)}&id=${id}`);
-  };
-
   return (
     <div>
       {loading && <p className="text-gray-600">Loading saved searches...</p>}
@@ -38,13 +33,7 @@ const SavedItemsList = () => {
       {!loading && searches && searches.length > 0 && (
         <div className="flex flex-col gap-3">
           {searches.map((search) => (
-            <button
-              key={search.id}
-              onClick={() => handleSearchClick(search.query, search.id)}
-              className="p-4 text-left text-sm bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-100 transition-colors cursor-pointer"
-            >
-              {search.query}
-            </button>
+            <SavedItemsRow key={search.id} search={search} />
           ))}
         </div>
       )}

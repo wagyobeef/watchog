@@ -18,7 +18,7 @@ const SalesInfoItem = ({ sale }) => {
         </div>
         <div className="text-[11px] text-gray-600">
           <span className="text-sm font-bold text-green-700">
-            ${parseFloat(sale.price.value).toFixed(2)}
+            ${Math.round(parseFloat(sale.price.value))}
           </span>
         </div>
       </div>

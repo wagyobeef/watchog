@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { IoChevronBack } from 'react-icons/io5';
 import TopBar from '../../components/TopBar.jsx';
+import SummarySection from './SummarySection.jsx';
 import AuctionsInfoSection from './AuctionsInfoSection.jsx';
 import BinsInfoSection from './BinsInfoSection.jsx';
 import SalesInfoSection from './SalesInfoSection.jsx';
@@ -20,7 +22,7 @@ const InfoPage = () => {
             onClick={() => navigate('/')}
             className="px-4 py-2 text-sm cursor-pointer bg-transparent border-0 flex items-center gap-2 hover:bg-gray-200 rounded transition-colors"
           >
-            <span className="text-xl leading-none flex items-center">‹</span>
+            <IoChevronBack className="text-md" />
             <span>Home</span>
           </button>
         }
@@ -37,12 +39,13 @@ const InfoPage = () => {
       <div className="p-5">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-5">
           <div className="flex flex-col gap-5">
-            <AuctionsInfoSection query={query} />
-            <BinsInfoSection query={query} />
+            <SummarySection query={query} />
+            <SalesInfoSection query={query} />
           </div>
 
           <div className="flex flex-col gap-5">
-            <SalesInfoSection query={query} />
+            <AuctionsInfoSection query={query} />
+            <BinsInfoSection query={query} />
           </div>
         </div>
       </div>

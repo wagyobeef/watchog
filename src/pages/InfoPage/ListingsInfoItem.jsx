@@ -48,7 +48,7 @@ const ListingsInfoItem = ({ item, mode = 'bin' }) => {
               <div>
                 <strong>Current Bid:</strong>{' '}
                 <span className="text-sm font-bold text-blue-700">
-                  ${parseFloat(item.currentBidPrice.value).toFixed(2)}
+                  ${Math.round(parseFloat(item.currentBidPrice.value))}
                   {item.bidCount !== undefined && (
                     <span className="text-[11px] font-normal text-gray-600 ml-1">
                       ({item.bidCount} bid{item.bidCount !== 1 ? 's' : ''})
@@ -69,7 +69,7 @@ const ListingsInfoItem = ({ item, mode = 'bin' }) => {
             )}
             {item.price?.value && (
               <div className="text-sm font-bold text-green-600">
-                ${parseFloat(item.price.value).toFixed(2)}
+                ${Math.round(parseFloat(item.price.value))}
               </div>
             )}
           </div>
@@ -80,7 +80,7 @@ const ListingsInfoItem = ({ item, mode = 'bin' }) => {
             {item.price?.value && (
               <div className="flex items-center gap-2 mb-1.5">
                 <div className="text-base font-bold text-blue-700">
-                  ${parseFloat(item.price.value).toFixed(2)}
+                  ${Math.round(parseFloat(item.price.value))}
                 </div>
                 {item.shippingOptions?.[0]?.shippingCost?.value === "0.00" && (
                   <span className="text-[11px] text-green-600">Free Shipping</span>

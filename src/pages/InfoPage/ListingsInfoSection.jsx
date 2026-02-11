@@ -1,5 +1,6 @@
 import * as React from 'react';
 import ListingsInfoItem from './ListingsInfoItem.jsx';
+import LoadingIndicator from '../../components/LoadingIndicator.jsx';
 
 const ListingsInfoSection = ({ title, items, loading, mode = 'bin' }) => {
   return (
@@ -8,7 +9,7 @@ const ListingsInfoSection = ({ title, items, loading, mode = 'bin' }) => {
         {title}
       </h3>
 
-      {loading && <p className="text-gray-600">Loading...</p>}
+      {loading && <LoadingIndicator />}
 
       {!loading && (!items || items.length === 0) && (
         <p className="text-gray-600">No results found.</p>

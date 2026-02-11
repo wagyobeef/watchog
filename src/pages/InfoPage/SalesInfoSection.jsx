@@ -1,5 +1,6 @@
 import * as React from 'react';
 import SalesInfoItem from './SalesInfoItem.jsx';
+import LoadingIndicator from '../../components/LoadingIndicator.jsx';
 
 const SalesInfoSection = ({ query }) => {
   const [sales, setSales] = React.useState([]);
@@ -32,7 +33,7 @@ const SalesInfoSection = ({ query }) => {
         Recent Sales
       </h3>
 
-      {loading && <p className="text-gray-600">Loading...</p>}
+      {loading && <LoadingIndicator />}
 
       {!loading && (!sales || sales.length === 0) && (
         <p className="text-gray-600">No sales found.</p>
