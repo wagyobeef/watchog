@@ -1,4 +1,15 @@
 const rules = require('./webpack.rules');
+const webpack = require('webpack');
+const dotenv = require('dotenv');
+
+// Load environment variables from .env file
+const env = dotenv.config().parsed || {};
+
+// Convert env variables to webpack DefinePlugin format
+const envKeys = Object.keys(env).reduce((prev, next) => {
+  prev[`process.env.${next}`] = JSON.stringify(env[next]);
+  return prev;
+}, {});
 
 rules.push({
   test: /\.css$/,
@@ -14,4 +25,7 @@ module.exports = {
   module: {
     rules,
   },
+  plugins: [
+    new webpack.DefinePlugin(envKeys)
+  ],
 };

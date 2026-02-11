@@ -135,4 +135,54 @@ router.delete('/savedSearch', async (req, res) => {
   }
 });
 
+router.patch('/itemCost', async (req, res) => {
+  try {
+    const { id, cost } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: 'ID is required' });
+    }
+
+    if (cost === undefined || cost === null) {
+      return res.status(400).json({ error: 'Cost is required' });
+    }
+
+    // Update the cost for the saved search
+    const stmt = db.prepare('UPDATE savedSearches SET cost = ? WHERE id = ?');
+    const result = stmt.run(cost, id);
+
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Search not found' });
+    }
+
+    res.json({
+      success: true,
+      id: id,
+      cost: cost
+    });
+  } catch (error) {
+    console.error('Error updating cost:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/resetDatabase', async (req, res) => {
+  try {
+    // Delete all records from savedSearches table
+    const stmt = db.prepare('DELETE FROM savedSearches');
+    stmt.run();
+
+    // Reset the autoincrement counter
+    db.prepare('DELETE FROM sqlite_sequence WHERE name = ?').run('savedSearches');
+
+    res.json({
+      success: true,
+      message: 'Database reset successfully'
+    });
+  } catch (error) {
+    console.error('Error resetting database:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

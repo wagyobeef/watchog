@@ -13,6 +13,27 @@ const InfoPage = () => {
   const navigate = useNavigate();
   const query = searchParams.get('query');
   const savedSearchId = searchParams.get('id');
+  const [savedSearch, setSavedSearch] = React.useState(null);
+
+  React.useEffect(() => {
+    if (!savedSearchId) {
+      setSavedSearch(null);
+      return;
+    }
+
+    const fetchSavedSearch = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/savedSearches');
+        const data = await response.json();
+        const search = data.searches?.find(s => s.id === parseInt(savedSearchId));
+        setSavedSearch(search || null);
+      } catch (error) {
+        console.error('Error fetching saved search:', error);
+      }
+    };
+
+    fetchSavedSearch();
+  }, [savedSearchId]);
 
   return (
     <div>
@@ -39,7 +60,7 @@ const InfoPage = () => {
       <div className="p-5">
         <div className="grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-5">
           <div className="flex flex-col gap-5">
-            <SummarySection query={query} />
+            <SummarySection query={query} savedSearchId={savedSearchId} savedSearch={savedSearch} />
             <SalesInfoSection query={query} />
           </div>
 

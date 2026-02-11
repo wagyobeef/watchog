@@ -24,10 +24,10 @@ const SavedItemsList = () => {
 
   return (
     <div>
-      {loading && <p className="text-gray-600">Loading saved searches...</p>}
+      {loading && <p className="text-gray-600 text-center py-8">Loading saved searches...</p>}
 
       {!loading && (!searches || searches.length === 0) && (
-        <p className="text-gray-600">No saved searches yet.</p>
+        <p className="text-gray-500 text-center py-8">No saved searches yet.</p>
       )}
 
       {!loading && searches && searches.length > 0 && (
