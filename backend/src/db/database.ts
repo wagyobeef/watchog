@@ -46,6 +46,41 @@ db.exec(`
   )
 `);
 
+// Create notificationSettings table
+db.exec(`
+  CREATE TABLE IF NOT EXISTS notificationSettings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    savedSearchId INTEGER NOT NULL UNIQUE,
+    notifyNewLowestBin INTEGER DEFAULT 0,
+    notifyNewSale INTEGER DEFAULT 0,
+    notifyNewAuction INTEGER DEFAULT 0,
+    notifyAuctionEndingToday INTEGER DEFAULT 0,
+    notifyAuctionEndingSoon INTEGER DEFAULT 0,
+    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (savedSearchId) REFERENCES savedSearches(id) ON DELETE CASCADE
+  )
+`);
+
+// Create sentNotifications table
+db.exec(`
+  CREATE TABLE IF NOT EXISTS sentNotifications (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    savedSearchId INTEGER NOT NULL,
+    notificationType TEXT NOT NULL,
+    price INTEGER,
+    listingId TEXT,
+    eventDate TEXT,
+    sentAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (savedSearchId) REFERENCES savedSearches(id) ON DELETE CASCADE
+  )
+`);
+
+db.exec(`
+  CREATE INDEX IF NOT EXISTS idx_sentNotifications_lookup
+  ON sentNotifications(savedSearchId, notificationType, listingId, eventDate)
+`);
+
 console.log("Database initialized at:", dbPath);
 
 export default db;

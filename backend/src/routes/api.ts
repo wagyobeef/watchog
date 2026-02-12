@@ -166,7 +166,18 @@ router.get('/itemSalesInfo', async (req: Request, res: Response) => {
 
 router.get('/savedSearches', async (req: Request, res: Response) => {
   try {
-    const stmt = db.prepare('SELECT * FROM savedSearches ORDER BY createdAt DESC');
+    const stmt = db.prepare(`
+      SELECT
+        s.*,
+        n.notifyNewLowestBin,
+        n.notifyNewSale,
+        n.notifyNewAuction,
+        n.notifyAuctionEndingToday,
+        n.notifyAuctionEndingSoon
+      FROM savedSearches s
+      LEFT JOIN notificationSettings n ON s.id = n.savedSearchId
+      ORDER BY s.createdAt DESC
+    `);
     const searches = stmt.all();
 
     res.json({ searches });
@@ -389,6 +400,63 @@ router.get('/hiddenListings', async (req: Request, res: Response) => {
     res.json({ hiddenListings: hiddenListings.map((row: any) => row.listingId) });
   } catch (error: any) {
     console.error('Error fetching hidden listings:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.patch('/notificationSettings', async (req: Request, res: Response) => {
+  try {
+    const { id, notificationType, enabled } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ error: 'ID is required' });
+    }
+
+    if (!notificationType) {
+      return res.status(400).json({ error: 'notificationType is required' });
+    }
+
+    if (enabled === undefined || enabled === null) {
+      return res.status(400).json({ error: 'enabled is required' });
+    }
+
+    // Validate notification type
+    const validTypes = [
+      'notifyNewLowestBin',
+      'notifyNewSale',
+      'notifyNewAuction',
+      'notifyAuctionEndingToday',
+      'notifyAuctionEndingSoon'
+    ];
+
+    if (!validTypes.includes(notificationType)) {
+      return res.status(400).json({ error: 'Invalid notification type' });
+    }
+
+    // Check if savedSearch exists
+    const searchExists = db.prepare('SELECT id FROM savedSearches WHERE id = ?').get(id);
+    if (!searchExists) {
+      return res.status(404).json({ error: 'Search not found' });
+    }
+
+    // Insert or update notification settings
+    const upsertStmt = db.prepare(`
+      INSERT INTO notificationSettings (savedSearchId, ${notificationType})
+      VALUES (?, ?)
+      ON CONFLICT(savedSearchId) DO UPDATE SET
+        ${notificationType} = excluded.${notificationType},
+        updatedAt = CURRENT_TIMESTAMP
+    `);
+    upsertStmt.run(id, enabled ? 1 : 0);
+
+    res.json({
+      success: true,
+      id: id,
+      notificationType,
+      enabled
+    });
+  } catch (error: any) {
+    console.error('Error updating notification preference:', error);
     res.status(500).json({ error: error.message });
   }
 });

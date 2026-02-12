@@ -43,7 +43,7 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
     }));
 
     try {
-      const response = await fetch(`http://localhost:3001/api/notifications`, {
+      const response = await fetch(`http://localhost:3001/api/notificationSettings`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
