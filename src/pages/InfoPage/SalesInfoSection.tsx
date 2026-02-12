@@ -59,7 +59,7 @@ const SalesInfoSection = ({ query, savedSearchId, onDataUpdated, onSummaryUpdate
 
       {!loading && sales && sales.length > 0 && (
         <div className="flex flex-col">
-          {sales.map((sale) => (
+          {sales.slice(0, 5).map((sale) => (
             <SalesInfoItem key={sale.itemId} sale={sale} />
           ))}
         </div>
