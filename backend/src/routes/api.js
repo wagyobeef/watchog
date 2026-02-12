@@ -18,38 +18,48 @@ router.get('/itemAuctionsInfo', async (req, res) => {
       return res.status(400).json({ error: 'Query parameter is required' });
     }
 
-    // Options specifically for auction items
+    // Options specifically for auction items - fetch 7 to have extras
     const options = {
       filter: 'buyingOptions:{AUCTION}',
       sort: 'endingSoonest',
-      limit: req.query.limit || 3
+      limit: 7
     };
 
     const results = await getEbayItemListings(query, options);
 
-    // Update database if savedSearchId is provided and we have results
+    // Update summary metrics excluding hidden listings
     if (savedSearchId && results?.itemSummaries?.length > 0) {
-      const nextAuction = results.itemSummaries[0];
-      const currentPrice = nextAuction.currentBidPrice?.value || nextAuction.price?.value;
-      const endDate = nextAuction.itemEndDate;
-      const link = nextAuction.itemWebUrl;
+      const hiddenStmt = db.prepare('SELECT listingId FROM hiddenListings WHERE savedSearchId = ?');
+      const hiddenListings = hiddenStmt.all(savedSearchId).map(row => row.listingId);
 
-      if (currentPrice && endDate && link) {
-        try {
-          db.prepare(`
-            UPDATE savedSearches
-            SET nextAuctionCurrentPrice = ?,
-                nextAuctionLink = ?,
-                nextAuctionEndAt = ?,
-                nextAuctionUpdatedAt = CURRENT_TIMESTAMP
-            WHERE id = ?
-          `).run(Math.round(parseFloat(currentPrice)), link, endDate, savedSearchId);
-        } catch (dbError) {
-          console.error('Error updating auction data:', dbError);
+      // Filter for summary calculation only
+      const visibleAuctions = results.itemSummaries.filter(item => !hiddenListings.includes(item.itemId));
+
+      // Update database with the first non-hidden auction
+      if (visibleAuctions.length > 0) {
+        const nextAuction = visibleAuctions[0];
+        const currentPrice = nextAuction.currentBidPrice?.value || nextAuction.price?.value;
+        const endDate = nextAuction.itemEndDate;
+        const link = nextAuction.itemWebUrl;
+
+        if (currentPrice && endDate && link) {
+          try {
+            db.prepare(`
+              UPDATE savedSearches
+              SET nextAuctionCurrentPrice = ?,
+                  nextAuctionLink = ?,
+                  nextAuctionEndAt = ?,
+                  nextAuctionUpdatedAt = CURRENT_TIMESTAMP
+              WHERE id = ?
+            `).run(Math.round(parseFloat(currentPrice)), link, endDate, savedSearchId);
+          } catch (dbError) {
+            console.error('Error updating auction data:', dbError);
+          }
         }
       }
     }
 
+    // Return all results (including hidden ones)
     res.json({ results });
   } catch (error) {
     console.error('Error fetching eBay auction results:', error);
@@ -66,36 +76,46 @@ router.get('/itemBinsInfo', async (req, res) => {
       return res.status(400).json({ error: 'Query parameter is required' });
     }
 
-    // Options specifically for buy it now items
+    // Options specifically for buy it now items - fetch 7 to have extras
     const options = {
       filter: 'buyingOptions:{FIXED_PRICE}',
       sort: 'price',
-      limit: req.query.limit || 5
+      limit: 7
     };
 
     const results = await getEbayItemListings(query, options);
 
-    // Update database if savedSearchId is provided and we have results
+    // Update summary metrics excluding hidden listings
     if (savedSearchId && results?.itemSummaries?.length > 0) {
-      const lowestBinItem = results.itemSummaries[0];
-      const lowestPrice = lowestBinItem.price?.value;
-      const link = lowestBinItem.itemWebUrl;
+      const hiddenStmt = db.prepare('SELECT listingId FROM hiddenListings WHERE savedSearchId = ?');
+      const hiddenListings = hiddenStmt.all(savedSearchId).map(row => row.listingId);
 
-      if (lowestPrice && link) {
-        try {
-          db.prepare(`
-            UPDATE savedSearches
-            SET lowestBin = ?,
-                lowestBinLink = ?,
-                lowestBinUpdatedAt = CURRENT_TIMESTAMP
-            WHERE id = ?
-          `).run(Math.round(parseFloat(lowestPrice)), link, savedSearchId);
-        } catch (dbError) {
-          console.error('Error updating BIN data:', dbError);
+      // Filter for summary calculation only
+      const visibleBins = results.itemSummaries.filter(item => !hiddenListings.includes(item.itemId));
+
+      // Update database with the lowest non-hidden BIN
+      if (visibleBins.length > 0) {
+        const lowestBinItem = visibleBins[0];
+        const lowestPrice = lowestBinItem.price?.value;
+        const link = lowestBinItem.itemWebUrl;
+
+        if (lowestPrice && link) {
+          try {
+            db.prepare(`
+              UPDATE savedSearches
+              SET lowestBin = ?,
+                  lowestBinLink = ?,
+                  lowestBinUpdatedAt = CURRENT_TIMESTAMP
+              WHERE id = ?
+            `).run(Math.round(parseFloat(lowestPrice)), link, savedSearchId);
+          } catch (dbError) {
+            console.error('Error updating BIN data:', dbError);
+          }
         }
       }
     }
 
+    // Return all results (including hidden ones)
     res.json({ results });
   } catch (error) {
     console.error('Error fetching eBay buy it now results:', error);
@@ -292,6 +312,83 @@ router.post('/resetDatabase', async (req, res) => {
     });
   } catch (error) {
     console.error('Error resetting database:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/hiddenListing', async (req, res) => {
+  try {
+    const { savedSearchId, listingId } = req.body;
+
+    if (!savedSearchId || !listingId) {
+      return res.status(400).json({ error: 'savedSearchId and listingId are required' });
+    }
+
+    // Insert the hidden listing
+    const stmt = db.prepare(`
+      INSERT INTO hiddenListings (savedSearchId, listingId)
+      VALUES (?, ?)
+    `);
+    const result = stmt.run(savedSearchId, listingId);
+
+    res.json({
+      success: true,
+      id: result.lastInsertRowid,
+      savedSearchId,
+      listingId
+    });
+  } catch (error) {
+    // Handle unique constraint violation (already hidden)
+    if (error.code === 'SQLITE_CONSTRAINT') {
+      return res.status(409).json({ error: 'Listing already hidden' });
+    }
+
+    console.error('Error hiding listing:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.delete('/hiddenListing', async (req, res) => {
+  try {
+    const { savedSearchId, listingId } = req.body;
+
+    if (!savedSearchId || !listingId) {
+      return res.status(400).json({ error: 'savedSearchId and listingId are required' });
+    }
+
+    // Delete the hidden listing
+    const stmt = db.prepare('DELETE FROM hiddenListings WHERE savedSearchId = ? AND listingId = ?');
+    const result = stmt.run(savedSearchId, listingId);
+
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Hidden listing not found' });
+    }
+
+    res.json({
+      success: true,
+      savedSearchId,
+      listingId
+    });
+  } catch (error) {
+    console.error('Error unhiding listing:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get('/hiddenListings', async (req, res) => {
+  try {
+    const savedSearchId = req.query.savedSearchId;
+
+    if (!savedSearchId) {
+      return res.status(400).json({ error: 'savedSearchId is required' });
+    }
+
+    const stmt = db.prepare('SELECT listingId FROM hiddenListings WHERE savedSearchId = ?');
+    const hiddenListings = stmt.all(savedSearchId);
+
+    res.json({ hiddenListings: hiddenListings.map(row => row.listingId) });
+  } catch (error) {
+    console.error('Error fetching hidden listings:', error);
     res.status(500).json({ error: error.message });
   }
 });

@@ -44,44 +44,58 @@ function getEbaySearchUrl() {
     return "https://api.ebay.com/buy/browse/v1/item_summary/search";
 }
 
-async function getEbayItemListings(query, options = {}) {
-    if (!ebayAccessToken) {
-        await getEbayAccessToken();
-    }
+async function getEbayItemListings(query, options = {}, retryCount = 0) {
+    const maxRetries = 1; // Will attempt twice total (initial + 1 retry)
 
-    const searchUrl = getEbaySearchUrl();
-
-    const params = new URLSearchParams({
-        q: query,
-        limit: options.limit || 50,
-        ...options
-    });
-
-    const res = await fetch(`${searchUrl}?${params}`, {
-        method: "GET",
-        headers: {
-            "Authorization": `Bearer ${ebayAccessToken}`,
-            "Content-Type": "application/json"
-        }
-    });
-
-    if (!res.ok) {
-        const text = await res.text();
-
-        // If unauthorized, token might be expired, retry once with new token
-        if (res.status === 401) {
-            ebayAccessToken = null;
+    try {
+        if (!ebayAccessToken) {
             await getEbayAccessToken();
-
-            // Retry the search with new token
-            return searchEbayItem(query, options);
         }
 
-        throw new Error(`eBay search failed (${res.status}): ${text}`);
-    }
+        const searchUrl = getEbaySearchUrl();
 
-    const data = await res.json();
-    return data;
+        const params = new URLSearchParams({
+            q: query,
+            limit: options.limit || 50,
+            ...options
+        });
+
+        const res = await fetch(`${searchUrl}?${params}`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${ebayAccessToken}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!res.ok) {
+            const text = await res.text();
+
+            // If unauthorized, token might be expired, retry once with new token
+            if (res.status === 401) {
+                ebayAccessToken = null;
+                await getEbayAccessToken();
+
+                // Retry the search with new token
+                return getEbayItemListings(query, options, retryCount);
+            }
+
+            throw new Error(`eBay search failed (${res.status}): ${text}`);
+        }
+
+        const data = await res.json();
+        return data;
+    } catch (error) {
+        // Retry once if it's the first attempt and not a 401 error
+        if (retryCount < maxRetries) {
+            console.log(`eBay API attempt ${retryCount + 1} failed, retrying...`);
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second before retry
+            return getEbayItemListings(query, options, retryCount + 1);
+        }
+
+        // If we've exhausted retries, throw the error
+        throw error;
+    }
 }
 
 export {

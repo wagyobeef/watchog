@@ -1,15 +1,31 @@
 import * as React from 'react';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
-const ListingsInfoItem = ({ item, mode = 'bin' }) => {
+const ListingsInfoItem = ({ item, mode = 'bin', savedSearchId, isHidden, onToggleHidden }) => {
   // mode can be: 'auction', 'sold', 'bin' (buy it now)
 
+  const handleToggleHidden = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!savedSearchId) {
+      alert('Cannot hide listings for unsaved searches');
+      return;
+    }
+
+    if (onToggleHidden) {
+      onToggleHidden(item.itemId, !isHidden);
+    }
+  };
+
   return (
-    <a
-      href={item.itemWebUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex gap-3 py-3 px-3 -mx-3 border-b border-gray-200 last:border-b-0 no-underline hover:bg-gray-100 transition-colors cursor-pointer rounded"
-    >
+    <div className={`relative flex gap-3 py-3 px-3 -mx-3 border-b border-gray-200 last:border-b-0 hover:bg-gray-100 transition-colors rounded group ${isHidden ? 'opacity-40' : ''}`}>
+      <a
+        href={item.itemWebUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex gap-3 flex-1 min-w-0 no-underline cursor-pointer"
+      >
       <div className="shrink-0 w-[60px] h-[100px]">
         <img
           src={item.image?.imageUrl || item.thumbnailImages?.[0]?.imageUrl || ''}
@@ -91,6 +107,23 @@ const ListingsInfoItem = ({ item, mode = 'bin' }) => {
         )}
       </div>
     </a>
+
+    {/* Eye icon toggle - only show for saved searches */}
+    {savedSearchId && (
+      <button
+        onClick={handleToggleHidden}
+        className="absolute bottom-2 right-2 p-1.5 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors opacity-0 group-hover:opacity-100"
+        aria-label={isHidden ? "Show listing" : "Hide listing"}
+        title={isHidden ? "Show listing" : "Hide listing"}
+      >
+        {isHidden ? (
+          <FiEyeOff className="text-sm text-gray-600" />
+        ) : (
+          <FiEye className="text-sm text-gray-600" />
+        )}
+      </button>
+    )}
+  </div>
   );
 };
 

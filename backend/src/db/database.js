@@ -34,26 +34,17 @@ db.exec(`
   )
 `);
 
-// TEMPORARY MIGRATION: Add link columns if they don't exist
-// TODO: Remove this after running once
-const linkColumnsToAdd = [
-  'lastSaleLink TEXT',
-  'lowestBinLink TEXT',
-  'nextAuctionLink TEXT'
-];
-
-linkColumnsToAdd.forEach(column => {
-  try {
-    db.exec(`ALTER TABLE savedSearches ADD COLUMN ${column}`);
-    console.log(`✅ Migration: Added ${column.split(' ')[0]} column`);
-  } catch (error) {
-    if (error.message.includes('duplicate column name')) {
-      // Column already exists, skip silently
-    } else {
-      console.error(`❌ Migration error for ${column}:`, error);
-    }
-  }
-});
+// Create hiddenListings table
+db.exec(`
+  CREATE TABLE IF NOT EXISTS hiddenListings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    savedSearchId INTEGER NOT NULL,
+    listingId TEXT NOT NULL,
+    hiddenAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (savedSearchId) REFERENCES savedSearches(id) ON DELETE CASCADE,
+    UNIQUE(savedSearchId, listingId)
+  )
+`);
 
 console.log('Database initialized at:', dbPath);
 
