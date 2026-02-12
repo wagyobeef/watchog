@@ -1,10 +1,10 @@
-let ebayAccessToken = null;
+let ebayAccessToken: string | null = null;
 
-function getEbayOauthUrl() {
+function getEbayOauthUrl(): string {
     return "https://api.ebay.com/identity/v1/oauth2/token";
 }
 
-async function getEbayAccessToken(scopes = ["https://api.ebay.com/oauth/api_scope"]) {
+async function getEbayAccessToken(scopes: string[] = ["https://api.ebay.com/oauth/api_scope"]): Promise<string> {
     const { EBAY_CLIENT_ID, EBAY_CLIENT_SECRET } = process.env;
     if (!EBAY_CLIENT_ID || !EBAY_CLIENT_SECRET) {
       throw new Error("Missing eBay credentials");
@@ -35,16 +35,16 @@ async function getEbayAccessToken(scopes = ["https://api.ebay.com/oauth/api_scop
       throw new Error(`eBay OAuth failed (${res.status}): ${text}`);
     }
 
-    const data = await res.json();
+    const data: any = await res.json();
     ebayAccessToken = data.access_token
     return ebayAccessToken;
   }
 
-function getEbaySearchUrl() {
+function getEbaySearchUrl(): string {
     return "https://api.ebay.com/buy/browse/v1/item_summary/search";
 }
 
-async function getEbayItemListings(query, options = {}, retryCount = 0) {
+async function getEbayItemListings(query: string, options: any = {}, retryCount: number = 0): Promise<any> {
     const maxRetries = 1; // Will attempt twice total (initial + 1 retry)
 
     try {
@@ -83,9 +83,9 @@ async function getEbayItemListings(query, options = {}, retryCount = 0) {
             throw new Error(`eBay search failed (${res.status}): ${text}`);
         }
 
-        const data = await res.json();
+        const data: any = await res.json();
         return data;
-    } catch (error) {
+    } catch (error: any) {
         // Retry once if it's the first attempt and not a 401 error
         if (retryCount < maxRetries) {
             console.log(`eBay API attempt ${retryCount + 1} failed, retrying...`);

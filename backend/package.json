@@ -2,11 +2,11 @@
   "name": "watchog-backend",
   "version": "1.0.0",
   "description": "Backend server for Watchog",
-  "main": "src/server.js",
+  "main": "src/server.ts",
   "type": "module",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "start": "tsx src/server.ts",
+    "dev": "tsx watch src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

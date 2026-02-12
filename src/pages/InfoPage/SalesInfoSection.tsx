@@ -1,6 +1,6 @@
 import * as React from 'react';
-import SalesInfoItem from './SalesInfoItem.jsx';
-import LoadingIndicator from '../../components/LoadingIndicator.jsx';
+import SalesInfoItem from './SalesInfoItem.tsx';
+import LoadingIndicator from '../../components/LoadingIndicator.tsx';
 
 const SalesInfoSection = ({ query, savedSearchId, onDataUpdated, onSummaryUpdate }) => {
   const [sales, setSales] = React.useState([]);

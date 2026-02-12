@@ -1,18 +1,18 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { getEbayItemListings } from '../utils/ebay.js';
 import { getItemSales } from '../utils/sales.js';
 import db from '../db/database.js';
 
 const router = express.Router();
 
-router.get('/health', (req, res) => {
+router.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'OK', message: 'Server is healthy' });
 });
 
-router.get('/itemAuctionsInfo', async (req, res) => {
+router.get('/itemAuctionsInfo', async (req: Request, res: Response) => {
   try {
-    const query = req.query.query;
-    const savedSearchId = req.query.savedSearchId;
+    const query = req.query.query as string;
+    const savedSearchId = req.query.savedSearchId as string;
 
     if (!query) {
       return res.status(400).json({ error: 'Query parameter is required' });
@@ -30,10 +30,10 @@ router.get('/itemAuctionsInfo', async (req, res) => {
     // Update summary metrics excluding hidden listings
     if (savedSearchId && results?.itemSummaries?.length > 0) {
       const hiddenStmt = db.prepare('SELECT listingId FROM hiddenListings WHERE savedSearchId = ?');
-      const hiddenListings = hiddenStmt.all(savedSearchId).map(row => row.listingId);
+      const hiddenListings = hiddenStmt.all(savedSearchId).map((row: any) => row.listingId);
 
       // Filter for summary calculation only
-      const visibleAuctions = results.itemSummaries.filter(item => !hiddenListings.includes(item.itemId));
+      const visibleAuctions = results.itemSummaries.filter((item: any) => !hiddenListings.includes(item.itemId));
 
       // Update database with the first non-hidden auction
       if (visibleAuctions.length > 0) {
@@ -61,16 +61,16 @@ router.get('/itemAuctionsInfo', async (req, res) => {
 
     // Return all results (including hidden ones)
     res.json({ results });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching eBay auction results:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-router.get('/itemBinsInfo', async (req, res) => {
+router.get('/itemBinsInfo', async (req: Request, res: Response) => {
   try {
-    const query = req.query.query;
-    const savedSearchId = req.query.savedSearchId;
+    const query = req.query.query as string;
+    const savedSearchId = req.query.savedSearchId as string;
 
     if (!query) {
       return res.status(400).json({ error: 'Query parameter is required' });
@@ -88,10 +88,10 @@ router.get('/itemBinsInfo', async (req, res) => {
     // Update summary metrics excluding hidden listings
     if (savedSearchId && results?.itemSummaries?.length > 0) {
       const hiddenStmt = db.prepare('SELECT listingId FROM hiddenListings WHERE savedSearchId = ?');
-      const hiddenListings = hiddenStmt.all(savedSearchId).map(row => row.listingId);
+      const hiddenListings = hiddenStmt.all(savedSearchId).map((row: any) => row.listingId);
 
       // Filter for summary calculation only
-      const visibleBins = results.itemSummaries.filter(item => !hiddenListings.includes(item.itemId));
+      const visibleBins = results.itemSummaries.filter((item: any) => !hiddenListings.includes(item.itemId));
 
       // Update database with the lowest non-hidden BIN
       if (visibleBins.length > 0) {
@@ -117,16 +117,16 @@ router.get('/itemBinsInfo', async (req, res) => {
 
     // Return all results (including hidden ones)
     res.json({ results });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching eBay buy it now results:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-router.get('/itemSalesInfo', async (req, res) => {
+router.get('/itemSalesInfo', async (req: Request, res: Response) => {
   try {
-    const query = req.query.query;
-    const savedSearchId = req.query.savedSearchId;
+    const query = req.query.query as string;
+    const savedSearchId = req.query.savedSearchId as string;
 
     if (!query) {
       return res.status(400).json({ error: 'Query parameter is required' });
@@ -158,25 +158,25 @@ router.get('/itemSalesInfo', async (req, res) => {
     }
 
     res.json({ itemSales });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching Alt.xyz sales:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-router.get('/savedSearches', async (req, res) => {
+router.get('/savedSearches', async (req: Request, res: Response) => {
   try {
     const stmt = db.prepare('SELECT * FROM savedSearches ORDER BY createdAt DESC');
     const searches = stmt.all();
 
     res.json({ searches });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching saved searches:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-router.post('/savedSearch', async (req, res) => {
+router.post('/savedSearch', async (req: Request, res: Response) => {
   try {
     const {
       query,
@@ -228,7 +228,7 @@ router.post('/savedSearch', async (req, res) => {
       id: result.lastInsertRowid,
       query: query.trim()
     });
-  } catch (error) {
+  } catch (error: any) {
     // Handle unique constraint violation (duplicate query)
     if (error.code === 'SQLITE_CONSTRAINT') {
       return res.status(409).json({ error: 'Search query already saved' });
@@ -239,7 +239,7 @@ router.post('/savedSearch', async (req, res) => {
   }
 });
 
-router.delete('/savedSearch', async (req, res) => {
+router.delete('/savedSearch', async (req: Request, res: Response) => {
   try {
     const { id } = req.body;
 
@@ -260,13 +260,13 @@ router.delete('/savedSearch', async (req, res) => {
       id: id,
       deleted: true
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting search:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-router.patch('/itemCost', async (req, res) => {
+router.patch('/itemCost', async (req: Request, res: Response) => {
   try {
     const { id, cost } = req.body;
 
@@ -291,13 +291,13 @@ router.patch('/itemCost', async (req, res) => {
       id: id,
       cost: cost
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error updating cost:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-router.post('/resetDatabase', async (req, res) => {
+router.post('/resetDatabase', async (req: Request, res: Response) => {
   try {
     // Delete all records from savedSearches table
     const stmt = db.prepare('DELETE FROM savedSearches');
@@ -310,13 +310,13 @@ router.post('/resetDatabase', async (req, res) => {
       success: true,
       message: 'Database reset successfully'
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error resetting database:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-router.post('/hiddenListing', async (req, res) => {
+router.post('/hiddenListing', async (req: Request, res: Response) => {
   try {
     const { savedSearchId, listingId } = req.body;
 
@@ -337,7 +337,7 @@ router.post('/hiddenListing', async (req, res) => {
       savedSearchId,
       listingId
     });
-  } catch (error) {
+  } catch (error: any) {
     // Handle unique constraint violation (already hidden)
     if (error.code === 'SQLITE_CONSTRAINT') {
       return res.status(409).json({ error: 'Listing already hidden' });
@@ -348,7 +348,7 @@ router.post('/hiddenListing', async (req, res) => {
   }
 });
 
-router.delete('/hiddenListing', async (req, res) => {
+router.delete('/hiddenListing', async (req: Request, res: Response) => {
   try {
     const { savedSearchId, listingId } = req.body;
 
@@ -369,15 +369,15 @@ router.delete('/hiddenListing', async (req, res) => {
       savedSearchId,
       listingId
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error unhiding listing:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-router.get('/hiddenListings', async (req, res) => {
+router.get('/hiddenListings', async (req: Request, res: Response) => {
   try {
-    const savedSearchId = req.query.savedSearchId;
+    const savedSearchId = req.query.savedSearchId as string;
 
     if (!savedSearchId) {
       return res.status(400).json({ error: 'savedSearchId is required' });
@@ -386,8 +386,8 @@ router.get('/hiddenListings', async (req, res) => {
     const stmt = db.prepare('SELECT listingId FROM hiddenListings WHERE savedSearchId = ?');
     const hiddenListings = stmt.all(savedSearchId);
 
-    res.json({ hiddenListings: hiddenListings.map(row => row.listingId) });
-  } catch (error) {
+    res.json({ hiddenListings: hiddenListings.map((row: any) => row.listingId) });
+  } catch (error: any) {
     console.error('Error fetching hidden listings:', error);
     res.status(500).json({ error: error.message });
   }

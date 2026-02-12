@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { createRoot } from 'react-dom/client';
 import { HashRouter, Routes, Route } from 'react-router-dom';
-import HomePage from './pages/HomePage/HomePage.jsx';
-import InfoPage from './pages/InfoPage/InfoPage.jsx';
+import HomePage from './pages/HomePage/HomePage.tsx';
+import InfoPage from './pages/InfoPage/InfoPage.tsx';
 
 const App = () => {
   return (

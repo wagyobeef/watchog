@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import * as cheerio from 'cheerio';
 
-async function navigateToItemSales(query) {
+async function navigateToItemSales(query: string): Promise<string> {
     const browser = await chromium.launch({
         headless: true
     });
@@ -48,7 +48,7 @@ async function navigateToItemSales(query) {
         const html = await page.content();
 
         return html;
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error navigating to Alt.xyz:', error);
         throw error;
     } finally {
@@ -56,7 +56,7 @@ async function navigateToItemSales(query) {
     }
 }
 
-function extractItemSales(html) {
+function extractItemSales(html: string): any[] {
     const $ = cheerio.load(html);
 
     // Find the "Recent transactions" heading
@@ -73,8 +73,8 @@ function extractItemSales(html) {
     const allLinks = container.find('a[href*="ebay.com"]');
 
     // Find all eBay listing links within that container only
-    const listings = [];
-    allLinks.each((index, element) => {
+    const listings: any[] = [];
+    allLinks.each((index: number, element: any) => {
         const $el = $(element);
         const href = $el.attr('href');
 
@@ -116,7 +116,7 @@ function extractItemSales(html) {
     return listings;
 }
 
-async function getItemSales(query) {
+async function getItemSales(query: string): Promise<any[]> {
     const html = await navigateToItemSales(query);
     const listings = extractItemSales(html);
 

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import ListingsInfoSection from './ListingsInfoSection.jsx';
+import ListingsInfoSection from './ListingsInfoSection.tsx';
 
 const BinsSection = ({ query, savedSearchId, onDataUpdated, onSummaryUpdate }) => {
   const [binItems, setBinItems] = React.useState([]);

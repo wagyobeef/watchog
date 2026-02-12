@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { IoChevronBack } from 'react-icons/io5';
-import TopBar from '../../components/TopBar.jsx';
-import SummarySection from './SummarySection.jsx';
-import AuctionsInfoSection from './AuctionsInfoSection.jsx';
-import BinsInfoSection from './BinsInfoSection.jsx';
-import SalesInfoSection from './SalesInfoSection.jsx';
-import SaveSearchButton from './SaveSearchButton.jsx';
+import TopBar from '../../components/TopBar.tsx';
+import SummarySection from './SummarySection.tsx';
+import NotificationsSection from './NotificationsSection.tsx';
+import AuctionsInfoSection from './AuctionsInfoSection.tsx';
+import BinsInfoSection from './BinsInfoSection.tsx';
+import SalesInfoSection from './SalesInfoSection.tsx';
+import SaveSearchButton from './SaveSearchButton.tsx';
 
 const InfoPage = () => {
   const [searchParams] = useSearchParams();
@@ -101,6 +102,10 @@ const InfoPage = () => {
               savedSearchId={savedSearchId}
               savedSearch={savedSearch}
               summaryData={summaryData}
+            />
+            <NotificationsSection
+              savedSearchId={savedSearchId}
+              savedSearch={savedSearch}
             />
             <SalesInfoSection
               query={query}

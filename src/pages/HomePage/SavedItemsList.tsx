@@ -1,5 +1,5 @@
 import * as React from 'react';
-import SavedItemsRow from './SavedItemsRow.jsx';
+import SavedItemsRow from './SavedItemsRow.tsx';
 
 const SavedItemsList = () => {
   const [searches, setSearches] = React.useState([]);

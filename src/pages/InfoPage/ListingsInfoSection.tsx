@@ -1,6 +1,6 @@
 import * as React from 'react';
-import ListingsInfoItem from './ListingsInfoItem.jsx';
-import LoadingIndicator from '../../components/LoadingIndicator.jsx';
+import ListingsInfoItem from './ListingsInfoItem.tsx';
+import LoadingIndicator from '../../components/LoadingIndicator.tsx';
 
 const ListingsInfoSection = ({
   title,
