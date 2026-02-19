@@ -1,4 +1,5 @@
 import * as React from "react";
+import { API_BASE_URL } from "../../config";
 
 interface NotificationsSectionProps {
   savedSearchId: string | null;
@@ -43,7 +44,7 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
     }));
 
     try {
-      const response = await fetch(`http://localhost:3001/api/notificationSettings`, {
+      const response = await fetch(`${API_BASE_URL}/notificationSettings`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -76,11 +77,11 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
   };
 
   const notificationOptions = [
-    { key: 'notifyNewLowestBin' as const, label: 'New Lowest BIN' },
-    { key: 'notifyNewSale' as const, label: 'New Sale' },
-    { key: 'notifyNewAuction' as const, label: 'New Auction' },
-    { key: 'notifyAuctionEndingToday' as const, label: 'Auction Ending Today' },
-    { key: 'notifyAuctionEndingSoon' as const, label: 'Auction Ending Soon' },
+    { key: "notifyNewLowestBin" as const, label: "New Lowest BIN" },
+    { key: "notifyNewSale" as const, label: "New Sale" },
+    { key: "notifyNewAuction" as const, label: "New Auction" },
+    { key: "notifyAuctionEndingToday" as const, label: "Auction Ending Today" },
+    { key: "notifyAuctionEndingSoon" as const, label: "Auction Ending Soon" },
   ];
 
   return (
@@ -89,7 +90,10 @@ const NotificationsSection: React.FC<NotificationsSectionProps> = ({
 
       <div className="grid grid-cols-2 gap-3">
         {notificationOptions.map((option) => (
-          <label key={option.key} className="flex items-center gap-3 cursor-pointer">
+          <label
+            key={option.key}
+            className="flex items-center gap-3 cursor-pointer"
+          >
             <input
               type="checkbox"
               checked={notifications[option.key]}

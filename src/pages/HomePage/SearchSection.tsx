@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
+import * as React from "react";
+import { useNavigate } from "react-router-dom";
 
 const SearchSection = () => {
-  const [query, setQuery] = React.useState('');
+  const [query, setQuery] = React.useState("");
   const navigate = useNavigate();
 
   const handleSubmit = (e) => {

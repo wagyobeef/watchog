@@ -1,8 +1,8 @@
-import { app, BrowserWindow, shell } from 'electron';
-import path from 'node:path';
+import { app, BrowserWindow, shell } from "electron";
+import path from "node:path";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) {
+if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
@@ -17,16 +17,18 @@ const createWindow = () => {
   });
 
   // Set Content Security Policy to allow localhost connections and eBay images
-  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-    callback({
-      responseHeaders: {
-        ...details.responseHeaders,
-        'Content-Security-Policy': [
-          "default-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:* ws://localhost:*; img-src 'self' https://i.ebayimg.com https://*.ebayimg.com data:;"
-        ]
-      }
-    });
-  });
+  mainWindow.webContents.session.webRequest.onHeadersReceived(
+    (details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          "Content-Security-Policy": [
+            "default-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:* ws://localhost:* http://18.220.9.27:*; img-src 'self' https://i.ebayimg.com https://*.ebayimg.com data:;",
+          ],
+        },
+      });
+    },
+  );
 
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
@@ -34,7 +36,7 @@ const createWindow = () => {
   // Open external links in the system browser
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
-    return { action: 'deny' };
+    return { action: "deny" };
   });
 
   // Open the DevTools.
@@ -49,7 +51,7 @@ app.whenReady().then(() => {
 
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  app.on('activate', () => {
+  app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
     }
@@ -59,8 +61,8 @@ app.whenReady().then(() => {
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
     app.quit();
   }
 });

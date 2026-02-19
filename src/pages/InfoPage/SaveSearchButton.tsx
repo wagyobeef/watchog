@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../../config';
 
 const SaveSearchButton = ({ query, savedSearchId, summaryData }) => {
   const navigate = useNavigate();
@@ -7,7 +8,7 @@ const SaveSearchButton = ({ query, savedSearchId, summaryData }) => {
 
   const handleSaveSearch = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/savedSearch', {
+      const response = await fetch(`${API_BASE_URL}/savedSearch`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,7 +45,7 @@ const SaveSearchButton = ({ query, savedSearchId, summaryData }) => {
 
   const handleUnsaveSearch = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/savedSearch', {
+      const response = await fetch(`${API_BASE_URL}/savedSearch`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

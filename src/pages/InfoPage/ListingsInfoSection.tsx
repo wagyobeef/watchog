@@ -1,16 +1,16 @@
-import * as React from 'react';
-import ListingsInfoItem from './ListingsInfoItem.tsx';
-import LoadingIndicator from '../../components/LoadingIndicator.tsx';
+import * as React from "react";
+import ListingsInfoItem from "./ListingsInfoItem.tsx";
+import LoadingIndicator from "../../components/LoadingIndicator.tsx";
 
 const ListingsInfoSection = ({
   title,
   items,
   loading,
-  mode = 'bin',
+  mode = "bin",
   savedSearchId,
   hiddenListingIds = [],
   onToggleHidden,
-  displayLimit
+  displayLimit,
 }) => {
   const [showHidden, setShowHidden] = React.useState(false);
 
@@ -20,7 +20,9 @@ const ListingsInfoSection = ({
 
     let filtered = items;
     if (!showHidden) {
-      filtered = items.filter(item => !hiddenListingIds.includes(item.itemId));
+      filtered = items.filter(
+        (item) => !hiddenListingIds.includes(item.itemId),
+      );
     }
 
     // Apply display limit if specified
@@ -34,12 +36,10 @@ const ListingsInfoSection = ({
   return (
     <div className="border border-gray-300 rounded-lg bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-lg font-semibold mt-0 mb-0">
-          {title}
-        </h3>
+        <h3 className="text-lg font-semibold mt-0 mb-0">{title}</h3>
 
         {/* Show/Hide toggle - only for saved searches with hidden listings */}
-        {savedSearchId && mode !== 'sold' && hiddenListingIds.length > 0 && (
+        {savedSearchId && mode !== "sold" && hiddenListingIds.length > 0 && (
           <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
             <input
               type="checkbox"

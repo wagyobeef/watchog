@@ -1,7 +1,13 @@
-import * as React from 'react';
-import ListingsInfoSection from './ListingsInfoSection.tsx';
+import * as React from "react";
+import ListingsInfoSection from "./ListingsInfoSection.tsx";
+import { API_BASE_URL } from "../../config";
 
-const UpcomingAuctionsSection = ({ query, savedSearchId, onDataUpdated, onSummaryUpdate }) => {
+const UpcomingAuctionsSection = ({
+  query,
+  savedSearchId,
+  onDataUpdated,
+  onSummaryUpdate,
+}) => {
   const [auctionItems, setAuctionItems] = React.useState([]);
   const [hiddenListingIds, setHiddenListingIds] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
@@ -15,13 +21,13 @@ const UpcomingAuctionsSection = ({ query, savedSearchId, onDataUpdated, onSummar
 
     const fetchHiddenListings = async () => {
       try {
-        const url = new URL('http://localhost:3001/api/hiddenListings');
-        url.searchParams.append('savedSearchId', savedSearchId);
+        const url = new URL(`${API_BASE_URL}/hiddenListings`);
+        url.searchParams.append("savedSearchId", savedSearchId);
         const response = await fetch(url);
         const data = await response.json();
         setHiddenListingIds(data.hiddenListings || []);
       } catch (error) {
-        console.error('Error fetching hidden listings:', error);
+        console.error("Error fetching hidden listings:", error);
       }
     };
 
@@ -33,27 +39,30 @@ const UpcomingAuctionsSection = ({ query, savedSearchId, onDataUpdated, onSummar
 
     setLoading(true);
     try {
-      const url = new URL('http://localhost:3001/api/itemAuctionsInfo');
-      url.searchParams.append('query', query);
+      const url = new URL(`${API_BASE_URL}/itemAuctionsInfo`);
+      url.searchParams.append("query", query);
       if (savedSearchId) {
-        url.searchParams.append('savedSearchId', savedSearchId);
+        url.searchParams.append("savedSearchId", savedSearchId);
       }
       const response = await fetch(url);
       const data = await response.json();
 
       // Backend already filtered hidden listings
-      const auctions = (data.results?.itemSummaries || []);
+      const auctions = data.results?.itemSummaries || [];
 
       setAuctionItems(auctions);
 
       // Update summary with next auction data
       if (auctions.length > 0 && onSummaryUpdate) {
         const nextAuction = auctions[0];
-        const currentPrice = nextAuction.currentBidPrice?.value || nextAuction.price?.value;
+        const currentPrice =
+          nextAuction.currentBidPrice?.value || nextAuction.price?.value;
         onSummaryUpdate({
-          nextAuctionCurrentPrice: currentPrice ? Math.round(parseFloat(currentPrice)) : null,
+          nextAuctionCurrentPrice: currentPrice
+            ? Math.round(parseFloat(currentPrice))
+            : null,
           nextAuctionLink: nextAuction.itemWebUrl || null,
-          nextAuctionEndAt: nextAuction.itemEndDate || null
+          nextAuctionEndAt: nextAuction.itemEndDate || null,
         });
       }
 
@@ -62,7 +71,7 @@ const UpcomingAuctionsSection = ({ query, savedSearchId, onDataUpdated, onSummar
         onDataUpdated();
       }
     } catch (error) {
-      console.error('Error fetching auction results:', error);
+      console.error("Error fetching auction results:", error);
     } finally {
       setLoading(false);
     }
@@ -74,37 +83,37 @@ const UpcomingAuctionsSection = ({ query, savedSearchId, onDataUpdated, onSummar
 
   const handleToggleHidden = async (listingId, shouldHide) => {
     try {
-      const url = 'http://localhost:3001/api/hiddenListing';
-      const method = shouldHide ? 'POST' : 'DELETE';
+      const url = `${API_BASE_URL}/hiddenListing`;
+      const method = shouldHide ? "POST" : "DELETE";
 
       const response = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           savedSearchId: parseInt(savedSearchId),
-          listingId
+          listingId,
         }),
       });
 
       if (response.ok) {
         // Update hidden listings state
-        setHiddenListingIds(prev =>
+        setHiddenListingIds((prev) =>
           shouldHide
             ? [...prev, listingId]
-            : prev.filter(id => id !== listingId)
+            : prev.filter((id) => id !== listingId),
         );
 
         // Refetch auctions to recalculate summary metrics
         await fetchAuctions();
       } else {
         const data = await response.json();
-        alert('Failed to update listing visibility: ' + data.error);
+        alert("Failed to update listing visibility: " + data.error);
       }
     } catch (error) {
-      console.error('Error toggling listing visibility:', error);
-      alert('Failed to update listing visibility.');
+      console.error("Error toggling listing visibility:", error);
+      alert("Failed to update listing visibility.");
     }
   };
 

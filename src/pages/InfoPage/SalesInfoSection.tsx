@@ -1,6 +1,7 @@
 import * as React from 'react';
 import SalesInfoItem from './SalesInfoItem.tsx';
 import LoadingIndicator from '../../components/LoadingIndicator.tsx';
+import { API_BASE_URL } from '../../config';
 
 const SalesInfoSection = ({ query, savedSearchId, onDataUpdated, onSummaryUpdate }) => {
   const [sales, setSales] = React.useState([]);
@@ -12,7 +13,7 @@ const SalesInfoSection = ({ query, savedSearchId, onDataUpdated, onSummaryUpdate
     const fetchSales = async () => {
       setLoading(true);
       try {
-        const url = new URL('http://localhost:3001/api/itemSalesInfo');
+        const url = new URL(`${API_BASE_URL}/itemSalesInfo`);
         url.searchParams.append('query', query);
         if (savedSearchId) {
           url.searchParams.append('savedSearchId', savedSearchId);

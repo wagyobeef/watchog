@@ -1,12 +1,14 @@
-import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FiExternalLink } from 'react-icons/fi';
+import * as React from "react";
+import { useNavigate } from "react-router-dom";
+import { FiExternalLink } from "react-icons/fi";
 
 const SavedItemsRow = ({ search }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/search?query=${encodeURIComponent(search.query)}&id=${search.id}`);
+    navigate(
+      `/search?query=${encodeURIComponent(search.query)}&id=${search.id}`,
+    );
   };
 
   return (
@@ -14,21 +16,25 @@ const SavedItemsRow = ({ search }) => {
       onClick={handleClick}
       className="p-4 text-left bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-100 transition-colors cursor-pointer"
     >
-      <div className="font-semibold text-base mb-3">
-        {search.query}
-      </div>
+      <div className="font-semibold text-base mb-3">{search.query}</div>
 
       <div className="grid grid-cols-4 gap-4">
         <div>
-          <div className="text-[13px] leading-snug font-medium text-gray-900 mb-1">My Cost</div>
+          <div className="text-[13px] leading-snug font-medium text-gray-900 mb-1">
+            My Cost
+          </div>
           <div className="text-lg font-semibold">
-            {search.cost !== null && search.cost !== undefined ? `$${search.cost}` : '--'}
+            {search.cost !== null && search.cost !== undefined
+              ? `$${search.cost}`
+              : "--"}
           </div>
         </div>
 
         <div>
           <div className="flex items-center gap-1 mb-1">
-            <div className="text-[13px] leading-snug font-medium text-gray-900">Last Sale</div>
+            <div className="text-[13px] leading-snug font-medium text-gray-900">
+              Last Sale
+            </div>
             {search.lastSaleLink && (
               <a
                 href={search.lastSaleLink}
@@ -42,13 +48,17 @@ const SavedItemsRow = ({ search }) => {
             )}
           </div>
           <div className="text-lg font-semibold">
-            {search.lastSale !== null && search.lastSale !== undefined ? `$${search.lastSale}` : '--'}
+            {search.lastSale !== null && search.lastSale !== undefined
+              ? `$${search.lastSale}`
+              : "--"}
           </div>
         </div>
 
         <div>
           <div className="flex items-center gap-1 mb-1">
-            <div className="text-[13px] leading-snug font-medium text-gray-900">Lowest BIN</div>
+            <div className="text-[13px] leading-snug font-medium text-gray-900">
+              Lowest BIN
+            </div>
             {search.lowestBinLink && (
               <a
                 href={search.lowestBinLink}
@@ -62,16 +72,21 @@ const SavedItemsRow = ({ search }) => {
             )}
           </div>
           <div className="text-lg font-semibold">
-            {search.lowestBin !== null && search.lowestBin !== undefined ? `$${search.lowestBin}` : '--'}
+            {search.lowestBin !== null && search.lowestBin !== undefined
+              ? `$${search.lowestBin}`
+              : "--"}
           </div>
         </div>
 
         <div>
-          <div className="text-[13px] leading-snug font-medium text-gray-900 mb-1">Next Auction</div>
+          <div className="text-[13px] leading-snug font-medium text-gray-900 mb-1">
+            Next Auction
+          </div>
           <div className="text-lg font-semibold">
-            {search.nextAuctionCurrentPrice !== null && search.nextAuctionCurrentPrice !== undefined
+            {search.nextAuctionCurrentPrice !== null &&
+            search.nextAuctionCurrentPrice !== undefined
               ? `$${search.nextAuctionCurrentPrice}`
-              : '--'}
+              : "--"}
           </div>
         </div>
       </div>

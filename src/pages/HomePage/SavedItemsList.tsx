@@ -1,5 +1,6 @@
-import * as React from 'react';
-import SavedItemsRow from './SavedItemsRow.tsx';
+import * as React from "react";
+import SavedItemsRow from "./SavedItemsRow.tsx";
+import { API_BASE_URL } from "../../config";
 
 const SavedItemsList = () => {
   const [searches, setSearches] = React.useState([]);
@@ -9,11 +10,11 @@ const SavedItemsList = () => {
     const fetchSavedSearches = async () => {
       setLoading(true);
       try {
-        const response = await fetch('http://localhost:3001/api/savedSearches');
+        const response = await fetch(`${API_BASE_URL}/savedSearches`);
         const data = await response.json();
         setSearches(data.searches || []);
       } catch (error) {
-        console.error('Error fetching saved searches:', error);
+        console.error("Error fetching saved searches:", error);
       } finally {
         setLoading(false);
       }
@@ -24,7 +25,11 @@ const SavedItemsList = () => {
 
   return (
     <div>
-      {loading && <p className="text-gray-600 text-center py-8">Loading saved searches...</p>}
+      {loading && (
+        <p className="text-gray-600 text-center py-8">
+          Loading saved searches...
+        </p>
+      )}
 
       {!loading && (!searches || searches.length === 0) && (
         <p className="text-gray-500 text-center py-8">No saved searches yet.</p>

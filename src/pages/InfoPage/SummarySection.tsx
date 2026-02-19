@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { FiEdit2, FiExternalLink } from 'react-icons/fi';
+import { API_BASE_URL } from '../../config';
 
 const SummarySection = ({ query, savedSearchId, savedSearch, summaryData }) => {
   const [isEditing, setIsEditing] = React.useState(false);
@@ -29,7 +30,7 @@ const SummarySection = ({ query, savedSearchId, savedSearch, summaryData }) => {
     }
 
     try {
-      const response = await fetch('http://localhost:3001/api/itemCost', {
+      const response = await fetch(`${API_BASE_URL}/itemCost`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

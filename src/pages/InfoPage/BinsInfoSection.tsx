@@ -1,7 +1,13 @@
-import * as React from 'react';
-import ListingsInfoSection from './ListingsInfoSection.tsx';
+import * as React from "react";
+import ListingsInfoSection from "./ListingsInfoSection.tsx";
+import { API_BASE_URL } from "../../config";
 
-const BinsSection = ({ query, savedSearchId, onDataUpdated, onSummaryUpdate }) => {
+const BinsSection = ({
+  query,
+  savedSearchId,
+  onDataUpdated,
+  onSummaryUpdate,
+}) => {
   const [binItems, setBinItems] = React.useState([]);
   const [hiddenListingIds, setHiddenListingIds] = React.useState([]);
   const [loading, setLoading] = React.useState(false);
@@ -15,13 +21,13 @@ const BinsSection = ({ query, savedSearchId, onDataUpdated, onSummaryUpdate }) =
 
     const fetchHiddenListings = async () => {
       try {
-        const url = new URL('http://localhost:3001/api/hiddenListings');
-        url.searchParams.append('savedSearchId', savedSearchId);
+        const url = new URL(`${API_BASE_URL}/hiddenListings`);
+        url.searchParams.append("savedSearchId", savedSearchId);
         const response = await fetch(url);
         const data = await response.json();
         setHiddenListingIds(data.hiddenListings || []);
       } catch (error) {
-        console.error('Error fetching hidden listings:', error);
+        console.error("Error fetching hidden listings:", error);
       }
     };
 
@@ -33,21 +39,20 @@ const BinsSection = ({ query, savedSearchId, onDataUpdated, onSummaryUpdate }) =
 
     setLoading(true);
     try {
-      const url = new URL('http://localhost:3001/api/itemBinsInfo');
-      url.searchParams.append('query', query);
+      const url = new URL(`${API_BASE_URL}/itemBinsInfo`);
+      url.searchParams.append("query", query);
       if (savedSearchId) {
-        url.searchParams.append('savedSearchId', savedSearchId);
+        url.searchParams.append("savedSearchId", savedSearchId);
       }
       const response = await fetch(url);
       const data = await response.json();
 
       // Backend already filtered hidden listings and sorted by price
-      const bins = (data.results?.itemSummaries || [])
-        .sort((a, b) => {
-          const priceA = parseFloat(a.price?.value || 0);
-          const priceB = parseFloat(b.price?.value || 0);
-          return priceA - priceB;
-        });
+      const bins = (data.results?.itemSummaries || []).sort((a, b) => {
+        const priceA = parseFloat(a.price?.value || 0);
+        const priceB = parseFloat(b.price?.value || 0);
+        return priceA - priceB;
+      });
 
       setBinItems(bins);
 
@@ -55,8 +60,10 @@ const BinsSection = ({ query, savedSearchId, onDataUpdated, onSummaryUpdate }) =
       if (bins.length > 0 && onSummaryUpdate) {
         const lowestBinItem = bins[0];
         onSummaryUpdate({
-          lowestBin: lowestBinItem.price?.value ? Math.round(parseFloat(lowestBinItem.price.value)) : null,
-          lowestBinLink: lowestBinItem.itemWebUrl || null
+          lowestBin: lowestBinItem.price?.value
+            ? Math.round(parseFloat(lowestBinItem.price.value))
+            : null,
+          lowestBinLink: lowestBinItem.itemWebUrl || null,
         });
       }
 
@@ -65,7 +72,7 @@ const BinsSection = ({ query, savedSearchId, onDataUpdated, onSummaryUpdate }) =
         onDataUpdated();
       }
     } catch (error) {
-      console.error('Error fetching buy it now results:', error);
+      console.error("Error fetching buy it now results:", error);
     } finally {
       setLoading(false);
     }
@@ -77,37 +84,37 @@ const BinsSection = ({ query, savedSearchId, onDataUpdated, onSummaryUpdate }) =
 
   const handleToggleHidden = async (listingId, shouldHide) => {
     try {
-      const url = 'http://localhost:3001/api/hiddenListing';
-      const method = shouldHide ? 'POST' : 'DELETE';
+      const url = `${API_BASE_URL}/hiddenListing`;
+      const method = shouldHide ? "POST" : "DELETE";
 
       const response = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           savedSearchId: parseInt(savedSearchId),
-          listingId
+          listingId,
         }),
       });
 
       if (response.ok) {
         // Update hidden listings state
-        setHiddenListingIds(prev =>
+        setHiddenListingIds((prev) =>
           shouldHide
             ? [...prev, listingId]
-            : prev.filter(id => id !== listingId)
+            : prev.filter((id) => id !== listingId),
         );
 
         // Refetch bins to recalculate summary metrics
         await fetchBins();
       } else {
         const data = await response.json();
-        alert('Failed to update listing visibility: ' + data.error);
+        alert("Failed to update listing visibility: " + data.error);
       }
     } catch (error) {
-      console.error('Error toggling listing visibility:', error);
-      alert('Failed to update listing visibility.');
+      console.error("Error toggling listing visibility:", error);
+      alert("Failed to update listing visibility.");
     }
   };
 
