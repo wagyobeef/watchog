@@ -16,7 +16,15 @@ const SavedItemsRow = ({ search }) => {
       onClick={handleClick}
       className="p-4 text-left bg-white border border-gray-300 rounded-lg shadow-sm hover:bg-gray-100 transition-colors cursor-pointer"
     >
-      <div className="font-semibold text-base mb-3">{search.query}</div>
+      <div className="flex items-center justify-between mb-3">
+        <div className="font-semibold text-base">{search.query}</div>
+        {search.lastScheduledAt && (
+          <div className="text-[11px] text-gray-500">
+            Last updated{" "}
+            {new Date(search.lastScheduledAt + "Z").toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
+          </div>
+        )}
+      </div>
 
       <div className="grid grid-cols-4 gap-4">
         <div>
