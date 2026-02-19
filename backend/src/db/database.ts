@@ -30,6 +30,7 @@ db.exec(`
     nextAuctionLink TEXT,
     nextAuctionEndAt DATETIME,
     nextAuctionUpdatedAt DATETIME,
+    lastScheduledAt DATETIME,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
   )
 `);
@@ -80,6 +81,12 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_sentNotifications_lookup
   ON sentNotifications(savedSearchId, notificationType, listingId, eventDate)
 `);
+
+// Migrations for existing databases
+const columns = db.prepare("PRAGMA table_info(savedSearches)").all() as any[];
+if (!columns.some((col: any) => col.name === "lastScheduledAt")) {
+  db.exec("ALTER TABLE savedSearches ADD COLUMN lastScheduledAt DATETIME");
+}
 
 console.log("Database initialized at:", dbPath);
 
