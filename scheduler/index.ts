@@ -1,6 +1,11 @@
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, "../backend/.env") });
 
 const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:3001/api";
 const TICK_INTERVAL_MS = 60 * 1000;
