@@ -44,7 +44,41 @@ async function main() {
 
     console.log(`[${new Date().toISOString()}] Refreshing: "${search.query}"`);
 
-    await updateSearch(search);
+    const refreshData = await updateSearch(search);
+
+    const latestSale = refreshData.sales.itemSales?.[0] || null;
+    const lowestBin = refreshData.bins.results?.itemSummaries?.[0] || null;
+    const nextAuction =
+      refreshData.auctions.results?.itemSummaries?.[0] || null;
+
+    await fetch(`${API_BASE_URL}/checkNotifications`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        savedSearchId: search.id,
+        latestSale: latestSale
+          ? {
+              itemId: latestSale.itemId,
+              price: latestSale.price?.value,
+              saleDate: latestSale.saleDate,
+            }
+          : null,
+        lowestBin: lowestBin
+          ? {
+              itemId: lowestBin.itemId,
+              price: lowestBin.price?.value,
+            }
+          : null,
+        nextAuction: nextAuction
+          ? {
+              itemId: nextAuction.itemId,
+              price:
+                nextAuction.currentBidPrice?.value || nextAuction.price?.value,
+              endDate: nextAuction.itemEndDate,
+            }
+          : null,
+      }),
+    });
 
     await fetch(`${API_BASE_URL}/savedSearchLastScheduledAt`, {
       method: "PATCH",
