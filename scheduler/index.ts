@@ -7,7 +7,7 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.join(__dirname, "../backend/.env") });
 
-const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:3001/api";
+const API_BASE_URL = process.env.API_BASE_URL || "http://localhost:3000/api";
 const TICK_INTERVAL_MS = 60 * 1000;
 const MIN_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 
