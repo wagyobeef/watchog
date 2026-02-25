@@ -85,45 +85,28 @@ router.post("/checkNotifications", async (req: Request, res: Response) => {
     const sent: string[] = [];
 
     if (settings.notifyNewSale && latestSale) {
-      const result = sendNewSaleNotification(
-        savedSearchId,
-        settings,
-        latestSale,
-      );
+      const result = await sendNewSaleNotification(savedSearchId, latestSale);
       if (result) sent.push(result);
     }
 
     if (settings.notifyNewLowestBin && lowestBin) {
-      const result = sendNewLowestBinNotification(
-        savedSearchId,
-        settings,
-        lowestBin,
-      );
+      const result = await sendNewLowestBinNotification(savedSearchId, lowestBin);
       if (result) sent.push(result);
     }
 
     if (settings.notifyNewAuction && nextAuction) {
-      const result = sendNewAuctionNotification(
-        savedSearchId,
-        settings,
-        nextAuction,
-      );
+      const result = await sendNewAuctionNotification(savedSearchId, nextAuction);
       if (result) sent.push(result);
     }
 
     if (settings.notifyAuctionEndingToday && nextAuction) {
-      const result = sendAuctionEndingTodayNotification(
-        savedSearchId,
-        settings,
-        nextAuction,
-      );
+      const result = await sendAuctionEndingTodayNotification(savedSearchId, nextAuction);
       if (result) sent.push(result);
     }
 
     if (settings.notifyAuctionEndingSoon && nextAuction) {
-      const result = sendAuctionEndingSoonNotification(
+      const result = await sendAuctionEndingSoonNotification(
         savedSearchId,
-        settings,
         nextAuction,
       );
       if (result) sent.push(result);

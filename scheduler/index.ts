@@ -66,12 +66,14 @@ async function main() {
               itemId: latestSale.itemId,
               price: latestSale.price?.value,
               saleDate: latestSale.saleDate,
+              itemWebUrl: latestSale.itemWebUrl,
             }
           : null,
         lowestBin: lowestBin
           ? {
               itemId: lowestBin.itemId,
               price: lowestBin.price?.value,
+              itemWebUrl: lowestBin.itemWebUrl,
             }
           : null,
         nextAuction: nextAuction
@@ -80,6 +82,7 @@ async function main() {
               price:
                 nextAuction.currentBidPrice?.value || nextAuction.price?.value,
               endDate: nextAuction.itemEndDate,
+              itemWebUrl: nextAuction.itemWebUrl,
             }
           : null,
       }),
