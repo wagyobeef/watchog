@@ -6,11 +6,13 @@ export function sendNewSaleNotification(
   savedSearchId: number,
   latestSale: any,
 ): Promise<string | null> {
+  console.log("[sendNewSaleNotification] Start", { savedSearchId, latestSale });
   const saleDate = latestSale?.saleDate;
   const rawPrice = latestSale?.price;
   const roundedPrice = Math.round(parseFloat(rawPrice));
 
   if (!saleDate || rawPrice === undefined || Number.isNaN(roundedPrice)) {
+    console.log("[sendNewSaleNotification] Skip: missing/invalid sale data");
     return Promise.resolve(null);
   }
 
@@ -29,6 +31,7 @@ export function sendNewSaleNotification(
     .get(savedSearchId, "newSale", saleDate, roundedPrice);
 
   if (alreadySent) {
+    console.log("[sendNewSaleNotification] Skip: already sent");
     return Promise.resolve(null);
   }
 
@@ -46,6 +49,13 @@ export function sendNewSaleNotification(
       !Number.isNaN(createdAtMs) &&
       saleMs < createdAtMs
     ) {
+      console.log(
+        "[sendNewSaleNotification] Skip: sale before search creation",
+        {
+          saleDate,
+          createdAt,
+        },
+      );
       return Promise.resolve(null);
     }
   }
@@ -53,6 +63,7 @@ export function sendNewSaleNotification(
   const saleLink = latestSale?.itemWebUrl || latestSale?.link || "";
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
   if (!webhookUrl) {
+    console.log("[sendNewSaleNotification] Skip: missing DISCORD_WEBHOOK_URL");
     return Promise.resolve(null);
   }
 
@@ -71,6 +82,7 @@ export function sendNewSaleNotification(
   })
     .then(async (res) => {
       if (!res.ok) {
+        console.log("[sendNewSaleNotification] Webhook failed", res.status);
         return null;
       }
 
@@ -81,20 +93,31 @@ export function sendNewSaleNotification(
         `,
       ).run(savedSearchId, "newSale", roundedPrice, saleLink || null, saleDate);
 
+      console.log("[sendNewSaleNotification] Sent + recorded");
       return "newSale";
     })
-    .catch(() => null);
+    .catch((error) => {
+      console.error("[sendNewSaleNotification] Error:", error);
+      return null;
+    });
 }
 
 export function sendNewLowestBinNotification(
   savedSearchId: number,
   lowestBin: any,
 ): Promise<string | null> {
+  console.log("[sendNewLowestBinNotification] Start", {
+    savedSearchId,
+    lowestBin,
+  });
   const listingId = lowestBin?.itemId;
   const rawPrice = lowestBin?.price;
   const roundedPrice = Math.round(parseFloat(rawPrice));
 
   if (!listingId || rawPrice === undefined || Number.isNaN(roundedPrice)) {
+    console.log(
+      "[sendNewLowestBinNotification] Skip: missing/invalid BIN data",
+    );
     return Promise.resolve(null);
   }
 
@@ -112,6 +135,7 @@ export function sendNewLowestBinNotification(
     .get(savedSearchId, "newLowestBin", listingId);
 
   if (alreadySent) {
+    console.log("[sendNewLowestBinNotification] Skip: already sent");
     return Promise.resolve(null);
   }
 
@@ -123,6 +147,9 @@ export function sendNewLowestBinNotification(
   const binLink = lowestBin?.itemWebUrl || lowestBin?.link || "";
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
   if (!webhookUrl) {
+    console.log(
+      "[sendNewLowestBinNotification] Skip: missing DISCORD_WEBHOOK_URL",
+    );
     return Promise.resolve(null);
   }
 
@@ -140,6 +167,10 @@ export function sendNewLowestBinNotification(
   })
     .then(async (res) => {
       if (!res.ok) {
+        console.log(
+          "[sendNewLowestBinNotification] Webhook failed",
+          res.status,
+        );
         return null;
       }
 
@@ -150,21 +181,32 @@ export function sendNewLowestBinNotification(
         `,
       ).run(savedSearchId, "newLowestBin", roundedPrice, listingId, null);
 
+      console.log("[sendNewLowestBinNotification] Sent + recorded");
       return "newLowestBin";
     })
-    .catch(() => null);
+    .catch((error) => {
+      console.error("[sendNewLowestBinNotification] Error:", error);
+      return null;
+    });
 }
 
 export function sendNewAuctionNotification(
   savedSearchId: number,
   nextAuction: any,
 ): Promise<string | null> {
+  console.log("[sendNewAuctionNotification] Start", {
+    savedSearchId,
+    nextAuction,
+  });
   const listingId = nextAuction?.itemId;
   const rawPrice = nextAuction?.price;
   const roundedPrice = Math.round(parseFloat(rawPrice));
   const endDate = nextAuction?.endDate || null;
 
   if (!listingId || rawPrice === undefined || Number.isNaN(roundedPrice)) {
+    console.log(
+      "[sendNewAuctionNotification] Skip: missing/invalid auction data",
+    );
     return Promise.resolve(null);
   }
 
@@ -182,6 +224,7 @@ export function sendNewAuctionNotification(
     .get(savedSearchId, "newAuction", listingId);
 
   if (alreadySent) {
+    console.log("[sendNewAuctionNotification] Skip: already sent");
     return Promise.resolve(null);
   }
 
@@ -193,6 +236,9 @@ export function sendNewAuctionNotification(
   const auctionLink = nextAuction?.itemWebUrl || nextAuction?.link || "";
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
   if (!webhookUrl) {
+    console.log(
+      "[sendNewAuctionNotification] Skip: missing DISCORD_WEBHOOK_URL",
+    );
     return Promise.resolve(null);
   }
 
@@ -211,6 +257,7 @@ export function sendNewAuctionNotification(
   })
     .then(async (res) => {
       if (!res.ok) {
+        console.log("[sendNewAuctionNotification] Webhook failed", res.status);
         return null;
       }
 
@@ -221,15 +268,23 @@ export function sendNewAuctionNotification(
         `,
       ).run(savedSearchId, "newAuction", roundedPrice, listingId, endDate);
 
+      console.log("[sendNewAuctionNotification] Sent + recorded");
       return "newAuction";
     })
-    .catch(() => null);
+    .catch((error) => {
+      console.error("[sendNewAuctionNotification] Error:", error);
+      return null;
+    });
 }
 
 export function sendAuctionEndingTodayNotification(
   savedSearchId: number,
   nextAuction: any,
 ): Promise<string | null> {
+  console.log("[sendAuctionEndingTodayNotification] Start", {
+    savedSearchId,
+    nextAuction,
+  });
   const listingId = nextAuction?.itemId;
   const rawPrice = nextAuction?.price;
   const roundedPrice = Math.round(parseFloat(rawPrice));
@@ -241,6 +296,9 @@ export function sendAuctionEndingTodayNotification(
     rawPrice === undefined ||
     Number.isNaN(roundedPrice)
   ) {
+    console.log(
+      "[sendAuctionEndingTodayNotification] Skip: missing/invalid auction data",
+    );
     return Promise.resolve(null);
   }
 
@@ -248,6 +306,10 @@ export function sendAuctionEndingTodayNotification(
   const endMs = new Date(endDate).getTime();
   const within24Hours = endMs > nowMs && endMs - nowMs <= 24 * 60 * 60 * 1000;
   if (!within24Hours) {
+    console.log(
+      "[sendAuctionEndingTodayNotification] Skip: not within 24 hours",
+      { endDate },
+    );
     return Promise.resolve(null);
   }
 
@@ -266,6 +328,7 @@ export function sendAuctionEndingTodayNotification(
     .get(savedSearchId, "auctionEndingToday", listingId, endDate);
 
   if (alreadySent) {
+    console.log("[sendAuctionEndingTodayNotification] Skip: already sent");
     return Promise.resolve(null);
   }
 
@@ -277,6 +340,9 @@ export function sendAuctionEndingTodayNotification(
   const auctionLink = nextAuction?.itemWebUrl || nextAuction?.link || "";
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
   if (!webhookUrl) {
+    console.log(
+      "[sendAuctionEndingTodayNotification] Skip: missing DISCORD_WEBHOOK_URL",
+    );
     return Promise.resolve(null);
   }
 
@@ -295,6 +361,10 @@ export function sendAuctionEndingTodayNotification(
   })
     .then(async (res) => {
       if (!res.ok) {
+        console.log(
+          "[sendAuctionEndingTodayNotification] Webhook failed",
+          res.status,
+        );
         return null;
       }
 
@@ -311,15 +381,23 @@ export function sendAuctionEndingTodayNotification(
         endDate,
       );
 
+      console.log("[sendAuctionEndingTodayNotification] Sent + recorded");
       return "auctionEndingToday";
     })
-    .catch(() => null);
+    .catch((error) => {
+      console.error("[sendAuctionEndingTodayNotification] Error:", error);
+      return null;
+    });
 }
 
 export function sendAuctionEndingSoonNotification(
   savedSearchId: number,
   nextAuction: any,
 ): Promise<string | null> {
+  console.log("[sendAuctionEndingSoonNotification] Start", {
+    savedSearchId,
+    nextAuction,
+  });
   const listingId = nextAuction?.itemId;
   const rawPrice = nextAuction?.price;
   const roundedPrice = Math.round(parseFloat(rawPrice));
@@ -331,6 +409,9 @@ export function sendAuctionEndingSoonNotification(
     rawPrice === undefined ||
     Number.isNaN(roundedPrice)
   ) {
+    console.log(
+      "[sendAuctionEndingSoonNotification] Skip: missing/invalid auction data",
+    );
     return Promise.resolve(null);
   }
 
@@ -339,6 +420,10 @@ export function sendAuctionEndingSoonNotification(
   const thresholdMs = AUCTION_ENDING_SOON_THRESHOLD_HOURS * 60 * 60 * 1000;
   const withinThreshold = endMs > nowMs && endMs - nowMs <= thresholdMs;
   if (!withinThreshold) {
+    console.log(
+      "[sendAuctionEndingSoonNotification] Skip: not within threshold",
+      { endDate, thresholdHours: AUCTION_ENDING_SOON_THRESHOLD_HOURS },
+    );
     return Promise.resolve(null);
   }
 
@@ -357,6 +442,7 @@ export function sendAuctionEndingSoonNotification(
     .get(savedSearchId, "auctionEndingSoon", listingId, endDate);
 
   if (alreadySent) {
+    console.log("[sendAuctionEndingSoonNotification] Skip: already sent");
     return Promise.resolve(null);
   }
 
@@ -368,6 +454,9 @@ export function sendAuctionEndingSoonNotification(
   const auctionLink = nextAuction?.itemWebUrl || nextAuction?.link || "";
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
   if (!webhookUrl) {
+    console.log(
+      "[sendAuctionEndingSoonNotification] Skip: missing DISCORD_WEBHOOK_URL",
+    );
     return Promise.resolve(null);
   }
 
@@ -386,6 +475,10 @@ export function sendAuctionEndingSoonNotification(
   })
     .then(async (res) => {
       if (!res.ok) {
+        console.log(
+          "[sendAuctionEndingSoonNotification] Webhook failed",
+          res.status,
+        );
         return null;
       }
 
@@ -402,7 +495,11 @@ export function sendAuctionEndingSoonNotification(
         endDate,
       );
 
+      console.log("[sendAuctionEndingSoonNotification] Sent + recorded");
       return "auctionEndingSoon";
     })
-    .catch(() => null);
+    .catch((error) => {
+      console.error("[sendAuctionEndingSoonNotification] Error:", error);
+      return null;
+    });
 }

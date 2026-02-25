@@ -69,6 +69,12 @@ router.patch("/notificationSettings", async (req: Request, res: Response) => {
 router.post("/checkNotifications", async (req: Request, res: Response) => {
   try {
     const { savedSearchId, latestSale, lowestBin, nextAuction } = req.body;
+    console.log("[checkNotifications] Incoming payload:", {
+      savedSearchId,
+      hasLatestSale: !!latestSale,
+      hasLowestBin: !!lowestBin,
+      hasNextAuction: !!nextAuction,
+    });
 
     if (!savedSearchId) {
       return res.status(400).json({ error: "savedSearchId is required" });
@@ -77,8 +83,10 @@ router.post("/checkNotifications", async (req: Request, res: Response) => {
     const settings: any = db
       .prepare("SELECT * FROM notificationSettings WHERE savedSearchId = ?")
       .get(savedSearchId);
+    console.log("[checkNotifications] Loaded settings:", settings);
 
     if (!settings) {
+      console.log("[checkNotifications] No settings found; skipping");
       return res.json({ success: true, notifications: [] });
     }
 
@@ -86,21 +94,34 @@ router.post("/checkNotifications", async (req: Request, res: Response) => {
 
     if (settings.notifyNewSale && latestSale) {
       const result = await sendNewSaleNotification(savedSearchId, latestSale);
+      console.log("[checkNotifications] newSale result:", result);
       if (result) sent.push(result);
     }
 
     if (settings.notifyNewLowestBin && lowestBin) {
-      const result = await sendNewLowestBinNotification(savedSearchId, lowestBin);
+      const result = await sendNewLowestBinNotification(
+        savedSearchId,
+        lowestBin,
+      );
+      console.log("[checkNotifications] newLowestBin result:", result);
       if (result) sent.push(result);
     }
 
     if (settings.notifyNewAuction && nextAuction) {
-      const result = await sendNewAuctionNotification(savedSearchId, nextAuction);
+      const result = await sendNewAuctionNotification(
+        savedSearchId,
+        nextAuction,
+      );
+      console.log("[checkNotifications] newAuction result:", result);
       if (result) sent.push(result);
     }
 
     if (settings.notifyAuctionEndingToday && nextAuction) {
-      const result = await sendAuctionEndingTodayNotification(savedSearchId, nextAuction);
+      const result = await sendAuctionEndingTodayNotification(
+        savedSearchId,
+        nextAuction,
+      );
+      console.log("[checkNotifications] auctionEndingToday result:", result);
       if (result) sent.push(result);
     }
 
@@ -109,9 +130,11 @@ router.post("/checkNotifications", async (req: Request, res: Response) => {
         savedSearchId,
         nextAuction,
       );
+      console.log("[checkNotifications] auctionEndingSoon result:", result);
       if (result) sent.push(result);
     }
 
+    console.log("[checkNotifications] Sent notifications:", sent);
     res.json({ success: true, notifications: sent });
   } catch (error: any) {
     console.error("Error checking notifications:", error);
