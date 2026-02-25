@@ -33,9 +33,22 @@ export function sendNewSaleNotification(
   }
 
   const savedSearch: any = db
-    .prepare("SELECT query FROM savedSearches WHERE id = ?")
+    .prepare("SELECT query, createdAt FROM savedSearches WHERE id = ?")
     .get(savedSearchId);
   const queryName = savedSearch?.query || `Search ${savedSearchId}`;
+  const createdAt = savedSearch?.createdAt;
+
+  if (createdAt) {
+    const saleMs = new Date(saleDate).getTime();
+    const createdAtMs = new Date(createdAt.replace(" ", "T") + "Z").getTime();
+    if (
+      !Number.isNaN(saleMs) &&
+      !Number.isNaN(createdAtMs) &&
+      saleMs < createdAtMs
+    ) {
+      return Promise.resolve(null);
+    }
+  }
 
   const saleLink = latestSale?.itemWebUrl || latestSale?.link || "";
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
